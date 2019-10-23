@@ -40,6 +40,27 @@ Gnss::Gnss(char* pchCanChannel)
     _u16DataReadiness = 0;
 }
 
+void Gnss::vParseGyroXY(can_frame Frame)
+{
+    _fGyroXYZ[0] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
+                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _fGyroXYZ[0] = (_fGyroXYZ[0]/1000)*57.28;
+    _fGyroXYZ[1] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
+                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _fGyroXYZ[1] = (_fGyroXYZ[1]/1000)*57.28;
+}
+
+void Gnss::vParseGyroZAccelX(can_frame Frame)
+{
+    _fGyroXYZ[2] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
+                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _fGyroXYZ[2] = (_fGyroXYZ[2]/1000)*57.28;
+
+    _fAccelXYZ[0] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
+                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _fAccelXYZ[0] /= 1000;
+}
+
 int Gnss::configure()
 {
     return _CanHandler.iInitialize(_pchCanChannel);
@@ -58,31 +79,32 @@ bool Gnss::update()
         switch (frame.can_id&0xFFFF)
         {
             case (GYRO_XY_FRAME_ID&0xFFFF):
-                std::cout << "A: 0x" << std::hex << GYRO_XY_FRAME_ID << std::endl;
+                //std::cout << "A: 0x" << std::hex << GYRO_XY_FRAME_ID << std::endl;
+                vParseGyroXY(frame);
                 _u16DataReadiness |= GYRO_XY_READY;
                 break;
             case (GYRO_Z_ACEL_X_FRAME_ID&0xFFFF):
-                std::cout << "B: 0x" << std::hex << GYRO_Z_ACEL_X_FRAME_ID << std::endl;
+                //std::cout << "B: 0x" << std::hex << GYRO_Z_ACEL_X_FRAME_ID << std::endl;
                 _u16DataReadiness |= GYRO_Z_ACEL_X_READY;
                 break;
             case (ACCEL_YZ_FRAME_ID&0xFFFF):
-                std::cout << "C: 0x" << ACCEL_YZ_FRAME_ID << std::endl;
+                //std::cout << "C: 0x" << ACCEL_YZ_FRAME_ID << std::endl;
                 _u16DataReadiness |= ACCEL_YZ_READY;
                 break;
             case (MAGN_XY_FRAME_ID&0xFFFF):
-                std::cout << "D: 0x" << MAGN_XY_FRAME_ID << std::endl;
+                //std::cout << "D: 0x" << MAGN_XY_FRAME_ID << std::endl;
                 _u16DataReadiness |= MAGN_XY_READY;
                 break;
             case (MAGN_Z_ROLL_FRAME_ID&0xFFFF):
-                std::cout << "E: 0x" << MAGN_Z_ROLL_FRAME_ID << std::endl;
+                //std::cout << "E: 0x" << MAGN_Z_ROLL_FRAME_ID << std::endl;
                 _u16DataReadiness |= MAGN_Z_ROLL_READY;
                 break;
             case (PITCH_YAW_FRAME_ID&0xFFFF):
-                std::cout << "F: 0x" << PITCH_YAW_FRAME_ID << std::endl;
+                //std::cout << "F: 0x" << PITCH_YAW_FRAME_ID << std::endl;
                 _u16DataReadiness |= PITCH_YAW_READY;
                 break;
             case (LON_LAT_FRAME_ID&0xFFFF):
-                std::cout << "G: 0x" << LON_LAT_FRAME_ID << std::endl;
+                //std::cout << "G: 0x" << LON_LAT_FRAME_ID << std::endl;
                 _u16DataReadiness |= LON_LAT_READY;
                 break;
             /*case (FIX_FRAME_ID&0xFFFF):

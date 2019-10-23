@@ -27,6 +27,8 @@ private:
     uint16_t _u16DataReadiness;
 public:
     Gnss(char* pchCanChannel);
+    void vParseGyroXY(can_frame Frame);
+    void vParseGyroZAccelX(can_frame Frame);
     virtual int configure();
     virtual bool startup();
     virtual bool update();
