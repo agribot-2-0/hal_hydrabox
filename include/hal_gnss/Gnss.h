@@ -6,25 +6,27 @@
 class Gnss: public AgribotComponent
 {
 private:
-uint8_t u8FixType; 
+    Can _CanHandler;
+    char* _pchCanChannel;
 
-float _fLongitude;
-float _fLatitude;
+    uint8_t u8FixType; 
 
-float _fAccHorizontal;
-float _fAccVertical;
+    float _fLongitude;
+    float _fLatitude;
 
-float _fHeading;
-float _fAccHeading;
+    float _fAccHorizontal;
+    float _fAccVertical;
 
-float _fAccelXYZ[3]; 
-float _fGyroXYZ[3];
-float _fMagnXYZ[3];
-float _fRPYXYZ[3];
+    float _fHeading;
+    float _fAccHeading;
 
+    float _fAccelXYZ[3]; 
+    float _fGyroXYZ[3];
+    float _fMagnXYZ[3];
+    float _fRPYXYZ[3];
+    uint16_t _u16DataReadiness;
 public:
-    Gnss();
-    ~Gnss();
+    Gnss(char* pchCanChannel);
     virtual int configure();
     virtual bool startup();
     virtual bool update();
