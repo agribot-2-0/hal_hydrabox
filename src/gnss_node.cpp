@@ -25,7 +25,7 @@ int main(int argc, char **argv)
             if(HydraBox.update())
             {
                 //publish data
-                ROS_INFO("All data gathered!");
+                ROS_INFO("[Hydrabox node] All data gathered!");
             }
             ros::spinOnce();
             loop_rate.sleep();
