@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   agribot_msgs
   agribot_common
+  sensor_msgs
 )
 
 ################################################

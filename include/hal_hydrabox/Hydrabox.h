@@ -3,6 +3,9 @@
 #include <agribot_common/AgribotComponent.h>
 #include <agribot_common/Can.h>
 
+#define FIRST_DATASET_READY 0x7F
+#define SECOND_DATASET_READY 0x380
+
 class Hydrabox: public AgribotComponent
 {
 private:
@@ -20,10 +23,10 @@ private:
     float _fHeading;
     float _fAccHeading;
 
-    float _fAccelXYZ[3]; 
-    float _fGyroXYZ[3];
-    float _fMagnXYZ[3];
-    float _fRPYXYZ[3];
+    float _pfAccelXYZ[3]; 
+    float _pfGyroXYZ[3];
+    float _pfMagnXYZ[3];
+    float _pfRPYXYZ[3];
     uint16_t _u16DataReadiness;
 public:
     Hydrabox(char* pchCanChannel);
@@ -44,4 +47,13 @@ public:
     virtual bool update();
     virtual bool stop();
     virtual bool cleanup();
+
+    uint16_t u16GetDataReadiness();
+    void vClearFirstDataset();
+    void vClearSecondDataset();
+
+    float* pfGetGyro();
+    float* pfAccel();
+    float* pfMagnetometr();
+    float* pfGetRPY();
 };
