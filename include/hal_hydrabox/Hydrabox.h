@@ -3,7 +3,7 @@
 #include <agribot_common/AgribotComponent.h>
 #include <agribot_common/Can.h>
 
-class Gnss: public AgribotComponent
+class Hydrabox: public AgribotComponent
 {
 private:
     Can _CanHandler;
@@ -26,7 +26,7 @@ private:
     float _fRPYXYZ[3];
     uint16_t _u16DataReadiness;
 public:
-    Gnss(char* pchCanChannel);
+    Hydrabox(char* pchCanChannel);
 
     void vParseGyroXY(can_frame Frame);
     void vParseGyroZAccelX(can_frame Frame);

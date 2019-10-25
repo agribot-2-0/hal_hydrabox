@@ -2,7 +2,7 @@
 ## Set minimum required version of cmake, project name and compile options ##
 #############################################################################
 cmake_minimum_required(VERSION 2.8.3)
-project(hal_gnss)
+project(hal_hydrabox)
 
 #############################################################################
 ## Find catkin packages and libraries for catkin and system dependencies   ##
@@ -40,8 +40,8 @@ include_directories(
  ${CMAKE_SOURCE_DIR}/agribot_common/include
 )
 link_directories("${PROJECT_SOURCE_DIR}")
-add_executable(gnss_node ${CMAKE_SOURCE_DIR}/agribot_common/src/Can.cpp src/Gnss.cpp src/gnss_node.cpp)
-target_link_libraries(gnss_node ${catkin_LIBRARIES})
+add_executable(hydrabox_node ${CMAKE_SOURCE_DIR}/agribot_common/src/Can.cpp src/Hydrabox.cpp src/hydrabox_node.cpp)
+target_link_libraries(hydrabox_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <ros/console.h>
-#include <hal_gnss/Gnss.h>
+#include <hal_hydrabox/Hydrabox.h>
 
 int main(int argc, char **argv)
 {
@@ -14,15 +14,15 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    Gnss HydraBox(argv[1]);
+    Hydrabox Hydra(argv[1]);
 
-    int iRet = HydraBox.configure();
+    int iRet = Hydra.configure();
     if(iRet == 0)
     {
         while(ros::ok())
         {
             //listen for frames, untill all data are fresh and ready:
-            if(HydraBox.update())
+            if(Hydra.update())
             {
                 //publish data
                 ROS_INFO("[Hydrabox node] All data gathered!");

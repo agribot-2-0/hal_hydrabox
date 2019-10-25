@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>hal_gnss</name>
+  <name>hal_hydrabox</name>
   <version>0.0.0</version>
-  <description>The hal_gnss package</description>
+  <description>The hal_hydrabox package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

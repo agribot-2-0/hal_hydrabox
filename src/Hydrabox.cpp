@@ -1,4 +1,4 @@
-#include <hal_gnss/Gnss.h>
+#include <hal_hydrabox/Hydrabox.h>
 
 #define GYRO_XY_FRAME_ID 0x1DFFD065
 #define GYRO_Z_ACEL_X_FRAME_ID 0x1DFFD165
@@ -23,7 +23,7 @@
 #define HEADING_FRAME_READY 0x200
 #define DATA_READY 0x7F //logical OR from all above data
 
-Gnss::Gnss(char* pchCanChannel)
+Hydrabox::Hydrabox(char* pchCanChannel)
 {
     _pchCanChannel = pchCanChannel;
     u8FixType = 0;
@@ -40,7 +40,7 @@ Gnss::Gnss(char* pchCanChannel)
     _u16DataReadiness = 0;
 }
 
-void Gnss::vParseGyroXY(can_frame Frame)
+void Hydrabox::vParseGyroXY(can_frame Frame)
 {
     _fGyroXYZ[0] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
                    ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
@@ -50,7 +50,7 @@ void Gnss::vParseGyroXY(can_frame Frame)
     _fGyroXYZ[1] *= (57.28/1000);
 }
 
-void Gnss::vParseGyroZAccelX(can_frame Frame)
+void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
     _fGyroXYZ[2] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
                    ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
@@ -59,7 +59,7 @@ void Gnss::vParseGyroZAccelX(can_frame Frame)
                    ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
     _fAccelXYZ[0] /= 1000;
 }
-void Gnss::vParseAccelYZ(can_frame Frame)
+void Hydrabox::vParseAccelYZ(can_frame Frame)
 {
     _fAccelXYZ[1] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
                    ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
@@ -69,7 +69,7 @@ void Gnss::vParseAccelYZ(can_frame Frame)
     _fAccelXYZ[2] /= 1000;
 }
 
-void Gnss::vParseMagnXY(can_frame Frame)
+void Hydrabox::vParseMagnXY(can_frame Frame)
 {
     _fMagnXYZ[0] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
                    ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
@@ -77,7 +77,7 @@ void Gnss::vParseMagnXY(can_frame Frame)
                    ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
 }
 
-void Gnss::vParseMagnZRoll(can_frame Frame)
+void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
     _fMagnXYZ[2] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
                    ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
@@ -86,7 +86,7 @@ void Gnss::vParseMagnZRoll(can_frame Frame)
     _fRPYXYZ[0] *= (57.29/1000);
 }
 
-void Gnss::vParsePitchYaw(can_frame Frame)
+void Hydrabox::vParsePitchYaw(can_frame Frame)
 {
     _fRPYXYZ[1] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
                    ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
@@ -96,7 +96,7 @@ void Gnss::vParsePitchYaw(can_frame Frame)
     _fRPYXYZ[2] *= (57.29/1000);
 }
 
-void Gnss::vParseLonLat(can_frame Frame)
+void Hydrabox::vParseLonLat(can_frame Frame)
 {
     _fLatitude = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
@@ -106,29 +106,41 @@ void Gnss::vParseLonLat(can_frame Frame)
     _fLatitude /= 10000000;
 }
 
-void Gnss::vParseFix(can_frame Frame)
+void Hydrabox::vParseFix(can_frame Frame)
 {
+    u8FixType=Frame.data[4];
 }
 
-void Gnss::vParseAccHorAccVer(can_frame Frame)
+void Hydrabox::vParseAccHorAccVer(can_frame Frame)
 {
+    _fAccHorizontal = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
+                      ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _fAccVertical = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
+                    ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+
 }
 
-void Gnss::vParseHeading(can_frame Frame)
+void Hydrabox::vParseHeading(can_frame Frame)
 {
+    _fHeading = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
+                ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _fHeading /= 100000;
+    _fAccHeading = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
+                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _fAccHeading /= 100000;
 }
 
-int Gnss::configure()
+int Hydrabox::configure()
 {
     return _CanHandler.iInitialize(_pchCanChannel);
 }
 
-bool Gnss::startup()
+bool Hydrabox::startup()
 {
     return true;
 }
 
-bool Gnss::update()
+bool Hydrabox::update()
 {
     can_frame frame;
     while(_CanHandler.bReceiveFrame(&frame))
@@ -200,12 +212,12 @@ bool Gnss::update()
     }
 }
 
-bool Gnss::stop()
+bool Hydrabox::stop()
 {
     return true;
 }
 
-bool Gnss::cleanup()
+bool Hydrabox::cleanup()
 {
     return true;
 }
