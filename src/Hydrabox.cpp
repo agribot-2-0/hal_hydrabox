@@ -1,15 +1,15 @@
 #include <hal_hydrabox/Hydrabox.h>
 
-#define GYRO_XY_FRAME_ID 0x1DFFD065
-#define GYRO_Z_ACEL_X_FRAME_ID 0x1DFFD165
-#define ACCEL_YZ_FRAME_ID 0x1DFFD265
-#define MAGN_XY_FRAME_ID 0x1DFFD365
-#define MAGN_Z_ROLL_FRAME_ID 0x1DFFD465
-#define PITCH_YAW_FRAME_ID 0x1DFFD565
-#define LON_LAT_FRAME_ID 0x1DFFDA65
-#define FIX_FRAME_ID 0x28A
-#define ACC_HOR_ACC_VER_FRAME_ID 0x38A
-#define HEADING_FRAME_ID 0x48A
+#define GYRO_XY_FRAME_ID 			0x1DFFD065
+#define GYRO_Z_ACEL_X_FRAME_ID 		0x1DFFD165
+#define ACCEL_YZ_FRAME_ID 			0x1DFFD265
+#define MAGN_XY_FRAME_ID 			0x1DFFD365
+#define MAGN_Z_ROLL_FRAME_ID 		0x1DFFD465
+#define PITCH_YAW_FRAME_ID 			0x1DFFD565
+#define LON_LAT_FRAME_ID 			0x1DFFDA65
+#define FIX_FRAME_ID 				0x1DFFDB65
+#define ACC_HOR_ACC_VER_FRAME_ID 	0x1DFFDC65
+#define HEADING_FRAME_ID 			0x1DFFDD65
 
 //first dataset:
 #define GYRO_XY_READY 0x01
@@ -110,6 +110,9 @@ void Hydrabox::vParseLonLat(can_frame Frame)
 
 void Hydrabox::vParseFix(can_frame Frame)
 {
+	//[4 bytes of float height in m][1 byte of fix type][1 byte of DGNSS flag][1 byte of RTK status]
+	//fix type: 0: no fix, 1: dead reckoning only, 2: 2D, 3: 3D, 4:GPS - dead reckonign combined, 5: time only fix
+	//RTK status - 0: node, 1: float, 2:fixed
     u8FixType = Frame.data[4];
 }
 
