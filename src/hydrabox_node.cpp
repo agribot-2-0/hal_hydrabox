@@ -31,12 +31,12 @@ int main(int argc, char **argv)
             //listen for frames, untill all data are fresh and ready:
             if(Hydra.update())
             {
-                if(Hydra.u16GetDataReadiness()&FIRST_DATASET_READY == FIRST_DATASET_READY)
+                if((Hydra.u16GetDataReadiness()&FIRST_DATASET_READY) == FIRST_DATASET_READY)
                 {
                     ROS_INFO("[Hydrabox node] First dataset ready to publish");
                     Hydra.vClearFirstDataset();
                 }
-                if(Hydra.u16GetDataReadiness()&SECOND_DATASET_READY == SECOND_DATASET_READY)
+                if((Hydra.u16GetDataReadiness()&SECOND_DATASET_READY) == SECOND_DATASET_READY)
                 {
                     ROS_INFO("[Hydrabox node] Second dataset ready to publish");
                     Hydra.vClearSecondDataset();

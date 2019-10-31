@@ -234,12 +234,12 @@ uint16_t Hydrabox::u16GetDataReadiness()
 
 void Hydrabox::vClearFirstDataset()
 {
-    _u16DataReadiness &= (!FIRST_DATASET_READY);
+    _u16DataReadiness &= ~FIRST_DATASET_READY;
 }
 
 void Hydrabox::vClearSecondDataset()
 {
-    _u16DataReadiness &= (!SECOND_DATASET_READY);
+    _u16DataReadiness &= ~SECOND_DATASET_READY;
 }
 
 float* Hydrabox::pfGetGyro()
