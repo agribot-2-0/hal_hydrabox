@@ -42,70 +42,72 @@ Hydrabox::Hydrabox(char* pchCanChannel)
     _u16DataReadiness = 0;
 }
 
+uint32_t Hydrabox::u32GetInt32(uint8_t u8StartBit, can_frame Frame)
+{
+    return ((uint32_t)Frame.data[u8StartBit+3])<<24 | ((uint32_t)Frame.data[u8StartBit+2])<<16 |
+    ((uint32_t)Frame.data[u8StartBit+1])<<8 | ((uint32_t)Frame.data[u8StartBit]);
+}
+
+float Hydrabox::fConvertFromIEEE(uint32_t u32NumToConvert)
+{
+    int iSing = ((bool)u32NumToConvert >> 31) ? -1 : 1;
+    int iExponent = (u32NumToConvert&0x7f800000) - 127;
+    float fMantissa = 0;
+}
+
 void Hydrabox::vParseGyroXY(can_frame Frame)
 {
-    _pfGyroXYZ[0] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _pfGyroXYZ[0] = u32GetInt32(0,Frame);
     _pfGyroXYZ[0] *= (57.29/1000);
-    _pfGyroXYZ[1] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _pfGyroXYZ[1] = u32GetInt32(4,Frame);
     _pfGyroXYZ[1] *= (57.28/1000);
 }
 
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
-    _pfGyroXYZ[2] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _pfGyroXYZ[2] = u32GetInt32(0,Frame);
     _pfGyroXYZ[2] *= (57.29/1000);
-    _pfAccelXYZ[0] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _pfAccelXYZ[0] = u32GetInt32(4,Frame);
     _pfAccelXYZ[0] /= 1000;
 }
 void Hydrabox::vParseAccelYZ(can_frame Frame)
 {
-    _pfAccelXYZ[1] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _pfAccelXYZ[1] = u32GetInt32(0,Frame);
     _pfAccelXYZ[1] /= 1000;
-    _pfAccelXYZ[2] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _pfAccelXYZ[2] = u32GetInt32(4,Frame);
     _pfAccelXYZ[2] /= 1000;
 }
 
 void Hydrabox::vParseMagnXY(can_frame Frame)
 {
-    _pfMagnXYZ[0] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
-    _pfMagnXYZ[1] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _pfMagnXYZ[0] = u32GetInt32(0,Frame);
+    _pfMagnXYZ[1] = u32GetInt32(4,Frame);
 }
 
 void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
-    _pfMagnXYZ[2] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
-    _pfRPYXYZ[0] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                  ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _pfMagnXYZ[2] = u32GetInt32(0,Frame);
+    _pfRPYXYZ[0] = u32GetInt32(4,Frame);
     _pfRPYXYZ[0] *= (57.29/1000);
 }
 
 void Hydrabox::vParsePitchYaw(can_frame Frame)
 {
-    _pfRPYXYZ[1] = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                   ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _pfRPYXYZ[1] = u32GetInt32(0,Frame);
     _pfRPYXYZ[1] *= (57.29/1000);
-    _pfRPYXYZ[2] = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                  ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _pfRPYXYZ[2] = u32GetInt32(4,Frame);
     _pfRPYXYZ[2] *= (57.29/1000);
 }
 
 void Hydrabox::vParseLonLat(can_frame Frame)
 {
-    _fLatitude = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                  ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
-    _fLatitude /= 10000000;
-    _fLongitude = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                  ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
-    _fLatitude /= 10000000;
+    _fLatitude = u32GetInt32(0,Frame);
+    _fLongitude = u32GetInt32(4,Frame);
+    std::cout << "0x";
+    std::cout << std::hex << (uint32_t)_fLatitude; 
+    std::cout << "   " << "0x";
+    std::cout << std::hex << (uint32_t)_fLongitude; 
+    std::cout << std::endl;
 }
 
 void Hydrabox::vParseFix(can_frame Frame)
@@ -118,20 +120,15 @@ void Hydrabox::vParseFix(can_frame Frame)
 
 void Hydrabox::vParseAccHorAccVer(can_frame Frame)
 {
-    _fAccHorizontal = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                      ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
-    _fAccVertical = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                    ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
-
+    _fAccHorizontal = u32GetInt32(0,Frame);
+    _fAccVertical = u32GetInt32(4,Frame);
 }
 
 void Hydrabox::vParseHeading(can_frame Frame)
 {
-    _fHeading = ((int32_t)Frame.data[3])<<24 | ((int32_t)Frame.data[2])<<16 |
-                ((int32_t)Frame.data[1])<<8 | ((int32_t)Frame.data[0]);
+    _fHeading = u32GetInt32(0,Frame);
     _fHeading /= 100000;
-    _fAccHeading = ((int32_t)Frame.data[7])<<24 | ((int32_t)Frame.data[6])<<16 |
-                   ((int32_t)Frame.data[5])<<8 | ((int32_t)Frame.data[4]);
+    _fAccHeading = u32GetInt32(4,Frame);
     _fAccHeading /= 100000;
 }
 

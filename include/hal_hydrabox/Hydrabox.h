@@ -28,6 +28,10 @@ private:
     float _pfMagnXYZ[3];
     float _pfRPYXYZ[3];
     uint16_t _u16DataReadiness;
+
+    uint32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
+    float fConvertFromIEEE(uint32_t u32NumToConvert);
+
 public:
     Hydrabox(char* pchCanChannel);
 
