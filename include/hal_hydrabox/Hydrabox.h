@@ -2,6 +2,7 @@
 
 #include <agribot_common/AgribotComponent.h>
 #include <agribot_common/Can.h>
+#include <cmath>
 
 #define FIRST_DATASET_READY 0x7F
 #define SECOND_DATASET_READY 0x380
@@ -14,8 +15,8 @@ private:
 
     uint8_t u8FixType; 
 
-    float _fLongitude;
-    float _fLatitude;
+    double _dLongitude;
+    double _dLatitude;
 
     float _fAccHorizontal;
     float _fAccVertical;
@@ -30,8 +31,7 @@ private:
     uint16_t _u16DataReadiness;
 
     uint32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
-    float fConvertFromIEEE(uint32_t u32NumToConvert);
-
+    double dConvertFromIEEE(uint32_t u32NumToConvert);
 public:
     Hydrabox(char* pchCanChannel);
 

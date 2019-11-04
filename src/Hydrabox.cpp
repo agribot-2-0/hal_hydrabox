@@ -29,8 +29,8 @@ Hydrabox::Hydrabox(char* pchCanChannel)
 {
     _pchCanChannel = pchCanChannel;
     u8FixType = 0;
-    _fLongitude = 0;
-    _fLatitude = 0;
+    _dLongitude = 0;
+    _dLatitude = 0;
     _fAccHorizontal = 0;
     _fAccVertical = 0;
     _fHeading = 0;
@@ -48,11 +48,23 @@ uint32_t Hydrabox::u32GetInt32(uint8_t u8StartBit, can_frame Frame)
     ((uint32_t)Frame.data[u8StartBit+1])<<8 | ((uint32_t)Frame.data[u8StartBit]);
 }
 
-float Hydrabox::fConvertFromIEEE(uint32_t u32NumToConvert)
+double Hydrabox::dConvertFromIEEE(uint32_t u32NumToConvert)
 {
     int iSing = ((bool)u32NumToConvert >> 31) ? -1 : 1;
-    int iExponent = (u32NumToConvert&0x7f800000) - 127;
-    float fMantissa = 0;
+    std::cout << std::hex << u32NumToConvert << std::endl;
+    int32_t i32Exponent = ((int32_t)((u32NumToConvert&0x7f800000)>>23) - 127);
+    double dMantissa = pow(2,i32Exponent);
+    uint32_t u32BitMask = 0x400000;
+    uint8_t u8BitCnt=22;
+
+    for (int i = i32Exponent-1; i > i32Exponent-24 ; i--)
+    {
+        dMantissa += (pow(2,i))*((u32BitMask&u32NumToConvert)>>u8BitCnt);
+        u32BitMask = u32BitMask >> 1;
+        u8BitCnt--;
+    }
+    std::cout.precision(17);
+    std::cout << dMantissa << std::endl;
 }
 
 void Hydrabox::vParseGyroXY(can_frame Frame)
@@ -101,13 +113,13 @@ void Hydrabox::vParsePitchYaw(can_frame Frame)
 
 void Hydrabox::vParseLonLat(can_frame Frame)
 {
-    _fLatitude = u32GetInt32(0,Frame);
-    _fLongitude = u32GetInt32(4,Frame);
-    std::cout << "0x";
-    std::cout << std::hex << (uint32_t)_fLatitude; 
+    _dLatitude = dConvertFromIEEE(u32GetInt32(0,Frame));
+    _dLongitude = dConvertFromIEEE(u32GetInt32(4,Frame));
+    /*std::cout << "0x";
+    std::cout << std::hex << (uint32_t)_dLatitude; 
     std::cout << "   " << "0x";
-    std::cout << std::hex << (uint32_t)_fLongitude; 
-    std::cout << std::endl;
+    std::cout << std::hex << (uint32_t)_dLongitude; 
+    std::cout << std::endl;*/
 }
 
 void Hydrabox::vParseFix(can_frame Frame)
