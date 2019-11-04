@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   agribot_msgs
   agribot_common
   sensor_msgs
+  tf2_geometry_msgs
 )
 
 ################################################

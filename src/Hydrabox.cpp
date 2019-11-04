@@ -12,16 +12,16 @@
 #define HEADING_FRAME_ID 			0x1DFFDD65
 
 //first dataset:
-#define GYRO_XY_READY 0x01
-#define GYRO_Z_ACEL_X_READY 0x02
-#define ACCEL_YZ_READY 0x04
-#define MAGN_XY_READY 0x08
-#define MAGN_Z_ROLL_READY 0x10
-#define PITCH_YAW_READY 0x20
-#define LON_LAT_READY 0x40
+#define GYRO_XY_READY 0x001
+#define GYRO_Z_ACEL_X_READY 0x002
+#define ACCEL_YZ_READY 0x004
+#define MAGN_XY_READY 0x008
+#define MAGN_Z_ROLL_READY 0x010
+#define PITCH_YAW_READY 0x020
 
 //second dataset:
-#define FIX_FRAME_READY 0x80
+#define LON_LAT_READY 0x040
+#define FIX_FRAME_READY 0x080
 #define ACC_HOR_ACC_VER_READY 0x100
 #define HEADING_FRAME_READY 0x200
 
@@ -50,12 +50,11 @@ uint32_t Hydrabox::u32GetInt32(uint8_t u8StartBit, can_frame Frame)
 
 double Hydrabox::dConvertFromIEEE(uint32_t u32NumToConvert)
 {
-    int iSing = ((bool)u32NumToConvert >> 31) ? -1 : 1;
-    std::cout << std::hex << u32NumToConvert << std::endl;
+    int iSing = ((bool)(u32NumToConvert >> 31)) ? -1 : 1;
     int32_t i32Exponent = ((int32_t)((u32NumToConvert&0x7f800000)>>23) - 127);
     double dMantissa = pow(2,i32Exponent);
     uint32_t u32BitMask = 0x400000;
-    uint8_t u8BitCnt=22;
+    uint8_t u8BitCnt = 22;
 
     for (int i = i32Exponent-1; i > i32Exponent-24 ; i--)
     {
@@ -63,31 +62,24 @@ double Hydrabox::dConvertFromIEEE(uint32_t u32NumToConvert)
         u32BitMask = u32BitMask >> 1;
         u8BitCnt--;
     }
-    std::cout.precision(17);
-    std::cout << dMantissa << std::endl;
 }
 
 void Hydrabox::vParseGyroXY(can_frame Frame)
 {
     _pfGyroXYZ[0] = u32GetInt32(0,Frame);
-    _pfGyroXYZ[0] *= (57.29/1000);
     _pfGyroXYZ[1] = u32GetInt32(4,Frame);
-    _pfGyroXYZ[1] *= (57.28/1000);
 }
 
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
     _pfGyroXYZ[2] = u32GetInt32(0,Frame);
-    _pfGyroXYZ[2] *= (57.29/1000);
     _pfAccelXYZ[0] = u32GetInt32(4,Frame);
-    _pfAccelXYZ[0] /= 1000;
 }
+
 void Hydrabox::vParseAccelYZ(can_frame Frame)
 {
     _pfAccelXYZ[1] = u32GetInt32(0,Frame);
-    _pfAccelXYZ[1] /= 1000;
     _pfAccelXYZ[2] = u32GetInt32(4,Frame);
-    _pfAccelXYZ[2] /= 1000;
 }
 
 void Hydrabox::vParseMagnXY(can_frame Frame)
@@ -99,27 +91,19 @@ void Hydrabox::vParseMagnXY(can_frame Frame)
 void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
     _pfMagnXYZ[2] = u32GetInt32(0,Frame);
-    _pfRPYXYZ[0] = u32GetInt32(4,Frame);
-    _pfRPYXYZ[0] *= (57.29/1000);
+    _pfRPYXYZ[0] = dConvertFromIEEE(u32GetInt32(4,Frame));
 }
 
 void Hydrabox::vParsePitchYaw(can_frame Frame)
 {
-    _pfRPYXYZ[1] = u32GetInt32(0,Frame);
-    _pfRPYXYZ[1] *= (57.29/1000);
-    _pfRPYXYZ[2] = u32GetInt32(4,Frame);
-    _pfRPYXYZ[2] *= (57.29/1000);
+    _pfRPYXYZ[1] = dConvertFromIEEE(u32GetInt32(0,Frame));
+    _pfRPYXYZ[2] = dConvertFromIEEE(u32GetInt32(4,Frame));
 }
 
 void Hydrabox::vParseLonLat(can_frame Frame)
 {
     _dLatitude = dConvertFromIEEE(u32GetInt32(0,Frame));
     _dLongitude = dConvertFromIEEE(u32GetInt32(4,Frame));
-    /*std::cout << "0x";
-    std::cout << std::hex << (uint32_t)_dLatitude; 
-    std::cout << "   " << "0x";
-    std::cout << std::hex << (uint32_t)_dLongitude; 
-    std::cout << std::endl;*/
 }
 
 void Hydrabox::vParseFix(can_frame Frame)

@@ -4,8 +4,8 @@
 #include <agribot_common/Can.h>
 #include <cmath>
 
-#define FIRST_DATASET_READY 0x7F
-#define SECOND_DATASET_READY 0x380
+#define FIRST_DATASET_READY 0x3F
+#define SECOND_DATASET_READY 0x3C0
 
 class Hydrabox: public AgribotComponent
 {

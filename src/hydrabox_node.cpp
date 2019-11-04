@@ -1,5 +1,7 @@
 #include <ros/ros.h>
 #include <ros/console.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <hal_hydrabox/Hydrabox.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
@@ -22,7 +24,6 @@ int main(int argc, char **argv)
     }
 
     Hydrabox Hydra(argv[1]);
-
     int iRet = Hydra.configure();
     if(iRet == 0)
     {
@@ -35,6 +36,12 @@ int main(int argc, char **argv)
                 {
                     ROS_INFO("[Hydrabox node] First dataset ready to publish");
                     Hydra.vClearFirstDataset();
+                    //Publish:
+                    imu_msg.header.frame_id = "/agribot/imu";
+                    tf2::Quaternion quat;
+                    quat.setRPY(Hydra.pfGetRPY()[0], Hydra.pfGetRPY()[1], Hydra.pfGetRPY()[2]);
+                    imu_msg.orientation = tf2::toMsg(quat);
+                    imu_pub.publish(imu_msg);
                 }
                 if((Hydra.u16GetDataReadiness()&SECOND_DATASET_READY) == SECOND_DATASET_READY)
                 {
