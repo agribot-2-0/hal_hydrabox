@@ -62,6 +62,8 @@ double Hydrabox::dConvertFromIEEE(uint32_t u32NumToConvert)
         u32BitMask = u32BitMask >> 1;
         u8BitCnt--;
     }
+    dMantissa*=iSing;
+    return dMantissa;
 }
 
 void Hydrabox::vParseGyroXY(can_frame Frame)
@@ -106,11 +108,12 @@ void Hydrabox::vParseLonLat(can_frame Frame)
     _dLongitude = dConvertFromIEEE(u32GetInt32(4,Frame));
 }
 
-void Hydrabox::vParseFix(can_frame Frame)
+void Hydrabox::vParseHeightFix(can_frame Frame)
 {
 	//[4 bytes of float height in m][1 byte of fix type][1 byte of DGNSS flag][1 byte of RTK status]
 	//fix type: 0: no fix, 1: dead reckoning only, 2: 2D, 3: 3D, 4:GPS - dead reckonign combined, 5: time only fix
 	//RTK status - 0: node, 1: float, 2:fixed
+    _dHeight = dConvertFromIEEE(u32GetInt32(0,Frame));
     u8FixType = Frame.data[4];
 }
 
@@ -183,7 +186,7 @@ bool Hydrabox::update()
             case (FIX_FRAME_ID&0xFFFF):
                 //std::cout << "H: 0x" << FIX_FRAME_ID << std::endl;
                 _u16DataReadiness |= FIX_FRAME_READY;
-                vParseFix(frame);
+                vParseHeightFix(frame);
                 break;
             case (ACC_HOR_ACC_VER_FRAME_ID&0xFFFF):
                 //std::cout << "I: 0x" << ACC_HOR_ACC_VER_FRAME_ID << std::endl;
@@ -240,12 +243,12 @@ float* Hydrabox::pfGetGyro()
     return _pfGyroXYZ;
 }
 
-float* Hydrabox::pfAccel()
+float* Hydrabox::pfGetAccel()
 {
     return _pfAccelXYZ;
 }
 
-float* Hydrabox::pfMagnetometr()
+float* Hydrabox::pfGetMagnetometr()
 {
     return _pfMagnXYZ;
 }
@@ -254,3 +257,45 @@ float* Hydrabox::pfGetRPY()
 {
     return _pfRPYXYZ;
 }
+
+double Hydrabox::dGetLon()
+{
+    return _dLongitude;
+}
+
+double Hydrabox::dGetLat()
+{
+    return _dLatitude;
+}
+
+double Hydrabox::dGetHei()
+{
+    return _dHeight;
+}
+
+uint8_t Hydrabox::u8GetFix()
+{
+    return u8FixType;
+}
+
+float Hydrabox::fGetHeading()
+{
+    return _fHeading;
+}
+
+float Hydrabox::fGetHeadingAcc()
+{
+    return _fAccHeading;
+}
+
+float Hydrabox::fGetHorizontalAcc()
+{
+    return _fAccHorizontal;
+}
+
+float Hydrabox::fGetVerticalAcc()
+{
+    return _fAccVertical;
+}
+
+

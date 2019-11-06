@@ -12,15 +12,14 @@ class Hydrabox: public AgribotComponent
 private:
     Can _CanHandler;
     char* _pchCanChannel;
+    uint16_t _u16DataReadiness;
 
     uint8_t u8FixType; 
-
     double _dLongitude;
     double _dLatitude;
-
+    double _dHeight;
     float _fAccHorizontal;
     float _fAccVertical;
-
     float _fHeading;
     float _fAccHeading;
 
@@ -28,7 +27,6 @@ private:
     float _pfGyroXYZ[3];
     float _pfMagnXYZ[3];
     float _pfRPYXYZ[3];
-    uint16_t _u16DataReadiness;
 
     uint32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
     double dConvertFromIEEE(uint32_t u32NumToConvert);
@@ -42,7 +40,7 @@ public:
     void vParseMagnZRoll(can_frame Frame);
     void vParsePitchYaw(can_frame Frame);
     void vParseLonLat(can_frame Frame);
-    void vParseFix(can_frame Frame);
+    void vParseHeightFix(can_frame Frame);
     void vParseAccHorAccVer(can_frame Frame);
     void vParseHeading(can_frame Frame);
 
@@ -57,7 +55,15 @@ public:
     void vClearSecondDataset();
 
     float* pfGetGyro();
-    float* pfAccel();
-    float* pfMagnetometr();
+    float* pfGetAccel();
+    float* pfGetMagnetometr();
     float* pfGetRPY();
+    double dGetLon();
+    double dGetLat();
+    double dGetHei();
+    uint8_t u8GetFix();
+    float fGetHeading();
+    float fGetHeadingAcc();
+    float fGetHorizontalAcc();
+    float fGetVerticalAcc();
 };
