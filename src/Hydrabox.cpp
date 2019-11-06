@@ -11,6 +11,13 @@
 #define ACC_HOR_ACC_VER_FRAME_ID 	0x1DFFDC65
 #define HEADING_FRAME_ID 			0x1DFFDD65
 
+#define BYTE_MASK 0xFFFF
+#define EXPONENT_MASK 0x7f800000
+#define EXPONENT_CONST 127
+#define FIRST_MANTISSA_BIT 0x400000
+#define FIRST_INT32 0
+#define SECOND_INT32 4
+
 //first dataset:
 #define GYRO_XY_READY 0x001
 #define GYRO_Z_ACEL_X_READY 0x002
@@ -25,20 +32,11 @@
 #define ACC_HOR_ACC_VER_READY 0x100
 #define HEADING_FRAME_READY 0x200
 
+enum eCoord {X=0, Y=1, Z=2};
+
 Hydrabox::Hydrabox(char* pchCanChannel)
 {
     _pchCanChannel = pchCanChannel;
-    u8FixType = 0;
-    _dLongitude = 0;
-    _dLatitude = 0;
-    _fAccHorizontal = 0;
-    _fAccVertical = 0;
-    _fHeading = 0;
-    _fAccHeading = 0;
-    memset(_pfAccelXYZ,0,3*sizeof(float));
-    memset(_pfGyroXYZ,0,3*sizeof(float));
-    memset(_pfMagnXYZ,0,3*sizeof(float));
-    memset(_pfRPYXYZ,0,3*sizeof(float));
     _u16DataReadiness = 0;
 }
 
@@ -50,62 +48,61 @@ uint32_t Hydrabox::u32GetInt32(uint8_t u8StartBit, can_frame Frame)
 
 double Hydrabox::dConvertFromIEEE(uint32_t u32NumToConvert)
 {
-    int iSing = ((bool)(u32NumToConvert >> 31)) ? -1 : 1;
-    int32_t i32Exponent = ((int32_t)((u32NumToConvert&0x7f800000)>>23) - 127);
+    int iSign = ((bool)(u32NumToConvert >> 31)) ? -1 : 1;
+    int32_t i32Exponent = ((int32_t)((u32NumToConvert&EXPONENT_MASK)>>23) - EXPONENT_CONST);
     double dMantissa = pow(2,i32Exponent);
-    uint32_t u32BitMask = 0x400000;
+    uint32_t u32BitMask = FIRST_MANTISSA_BIT;
     uint8_t u8BitCnt = 22;
-
     for (int i = i32Exponent-1; i > i32Exponent-24 ; i--)
     {
         dMantissa += (pow(2,i))*((u32BitMask&u32NumToConvert)>>u8BitCnt);
         u32BitMask = u32BitMask >> 1;
         u8BitCnt--;
     }
-    dMantissa*=iSing;
+    dMantissa*=iSign;
     return dMantissa;
 }
 
 void Hydrabox::vParseGyroXY(can_frame Frame)
 {
-    _pfGyroXYZ[0] = u32GetInt32(0,Frame);
-    _pfGyroXYZ[1] = u32GetInt32(4,Frame);
+    _pfGyroXYZ[X] = u32GetInt32(FIRST_INT32,Frame);
+    _pfGyroXYZ[Y] = u32GetInt32(SECOND_INT32,Frame);
 }
 
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
-    _pfGyroXYZ[2] = u32GetInt32(0,Frame);
-    _pfAccelXYZ[0] = u32GetInt32(4,Frame);
+    _pfGyroXYZ[Z] = u32GetInt32(FIRST_INT32,Frame);
+    _pfAccelXYZ[X] = u32GetInt32(SECOND_INT32,Frame);
 }
 
 void Hydrabox::vParseAccelYZ(can_frame Frame)
 {
-    _pfAccelXYZ[1] = u32GetInt32(0,Frame);
-    _pfAccelXYZ[2] = u32GetInt32(4,Frame);
+    _pfAccelXYZ[Y] = u32GetInt32(FIRST_INT32,Frame);
+    _pfAccelXYZ[Z] = u32GetInt32(SECOND_INT32,Frame);
 }
 
 void Hydrabox::vParseMagnXY(can_frame Frame)
 {
-    _pfMagnXYZ[0] = u32GetInt32(0,Frame);
-    _pfMagnXYZ[1] = u32GetInt32(4,Frame);
+    _pfMagnXYZ[X] = u32GetInt32(FIRST_INT32,Frame);
+    _pfMagnXYZ[Y] = u32GetInt32(SECOND_INT32,Frame);
 }
 
 void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
-    _pfMagnXYZ[2] = u32GetInt32(0,Frame);
-    _pfRPYXYZ[0] = dConvertFromIEEE(u32GetInt32(4,Frame));
+    _pfMagnXYZ[Z] = u32GetInt32(FIRST_INT32,Frame);
+    _pfRPYXYZ[X] = dConvertFromIEEE(u32GetInt32(SECOND_INT32,Frame));
 }
 
 void Hydrabox::vParsePitchYaw(can_frame Frame)
 {
-    _pfRPYXYZ[1] = dConvertFromIEEE(u32GetInt32(0,Frame));
-    _pfRPYXYZ[2] = dConvertFromIEEE(u32GetInt32(4,Frame));
+    _pfRPYXYZ[Y] = dConvertFromIEEE(u32GetInt32(FIRST_INT32,Frame));
+    _pfRPYXYZ[Z] = dConvertFromIEEE(u32GetInt32(SECOND_INT32,Frame));
 }
 
 void Hydrabox::vParseLonLat(can_frame Frame)
 {
-    _dLatitude = dConvertFromIEEE(u32GetInt32(0,Frame));
-    _dLongitude = dConvertFromIEEE(u32GetInt32(4,Frame));
+    _dLatitude = dConvertFromIEEE(u32GetInt32(FIRST_INT32,Frame));
+    _dLongitude = dConvertFromIEEE(u32GetInt32(SECOND_INT32,Frame));
 }
 
 void Hydrabox::vParseHeightFix(can_frame Frame)
@@ -113,21 +110,21 @@ void Hydrabox::vParseHeightFix(can_frame Frame)
 	//[4 bytes of float height in m][1 byte of fix type][1 byte of DGNSS flag][1 byte of RTK status]
 	//fix type: 0: no fix, 1: dead reckoning only, 2: 2D, 3: 3D, 4:GPS - dead reckonign combined, 5: time only fix
 	//RTK status - 0: node, 1: float, 2:fixed
-    _dHeight = dConvertFromIEEE(u32GetInt32(0,Frame));
+    _dHeight = dConvertFromIEEE(u32GetInt32(FIRST_INT32,Frame));
     u8FixType = Frame.data[4];
 }
 
 void Hydrabox::vParseAccHorAccVer(can_frame Frame)
 {
-    _fAccHorizontal = u32GetInt32(0,Frame);
-    _fAccVertical = u32GetInt32(4,Frame);
+    _fAccHorizontal = u32GetInt32(FIRST_INT32,Frame);
+    _fAccVertical = u32GetInt32(SECOND_INT32,Frame);
 }
 
 void Hydrabox::vParseHeading(can_frame Frame)
 {
-    _fHeading = u32GetInt32(0,Frame);
+    _fHeading = u32GetInt32(FIRST_INT32,Frame);
     _fHeading /= 100000;
-    _fAccHeading = u32GetInt32(4,Frame);
+    _fAccHeading = u32GetInt32(SECOND_INT32,Frame);
     _fAccHeading /= 100000;
 }
 
@@ -146,54 +143,54 @@ bool Hydrabox::update()
     can_frame frame;
     while(_CanHandler.bReceiveFrame(&frame))
     {
-        switch (frame.can_id&0xFFFF)
+        switch (frame.can_id&BYTE_MASK)
         {
-            case (GYRO_XY_FRAME_ID&0xFFFF):
+            case (GYRO_XY_FRAME_ID&BYTE_MASK):
                 //std::cout << "A: 0x" << std::hex << GYRO_XY_FRAME_ID << std::endl;
                 vParseGyroXY(frame);
                 _u16DataReadiness |= GYRO_XY_READY;
                 break;
-            case (GYRO_Z_ACEL_X_FRAME_ID&0xFFFF):
+            case (GYRO_Z_ACEL_X_FRAME_ID&BYTE_MASK):
                 //std::cout << "B: 0x" << std::hex << GYRO_Z_ACEL_X_FRAME_ID << std::endl;
                 vParseGyroZAccelX(frame);
                 _u16DataReadiness |= GYRO_Z_ACEL_X_READY;
                 break;
-            case (ACCEL_YZ_FRAME_ID&0xFFFF):
+            case (ACCEL_YZ_FRAME_ID&BYTE_MASK):
                 //std::cout << "C: 0x" << ACCEL_YZ_FRAME_ID << std::endl;
                 vParseAccelYZ(frame);
                 _u16DataReadiness |= ACCEL_YZ_READY;
                 break;
-            case (MAGN_XY_FRAME_ID&0xFFFF):
+            case (MAGN_XY_FRAME_ID&BYTE_MASK):
                 //std::cout << "D: 0x" << MAGN_XY_FRAME_ID << std::endl;
                 vParseMagnXY(frame);
                 _u16DataReadiness |= MAGN_XY_READY;
                 break;
-            case (MAGN_Z_ROLL_FRAME_ID&0xFFFF):
+            case (MAGN_Z_ROLL_FRAME_ID&BYTE_MASK):
                 //std::cout << "E: 0x" << MAGN_Z_ROLL_FRAME_ID << std::endl;
                 vParseMagnZRoll(frame);
                 _u16DataReadiness |= MAGN_Z_ROLL_READY;
                 break;
-            case (PITCH_YAW_FRAME_ID&0xFFFF):
+            case (PITCH_YAW_FRAME_ID&BYTE_MASK):
                 //std::cout << "F: 0x" << PITCH_YAW_FRAME_ID << std::endl;
                 vParsePitchYaw(frame);
                 _u16DataReadiness |= PITCH_YAW_READY;
                 break;
-            case (LON_LAT_FRAME_ID&0xFFFF):
+            case (LON_LAT_FRAME_ID&BYTE_MASK):
                 //std::cout << "G: 0x" << LON_LAT_FRAME_ID << std::endl;
                 vParseLonLat(frame);
                 _u16DataReadiness |= LON_LAT_READY;
                 break;
-            case (FIX_FRAME_ID&0xFFFF):
+            case (FIX_FRAME_ID&BYTE_MASK):
                 //std::cout << "H: 0x" << FIX_FRAME_ID << std::endl;
                 _u16DataReadiness |= FIX_FRAME_READY;
                 vParseHeightFix(frame);
                 break;
-            case (ACC_HOR_ACC_VER_FRAME_ID&0xFFFF):
+            case (ACC_HOR_ACC_VER_FRAME_ID&BYTE_MASK):
                 //std::cout << "I: 0x" << ACC_HOR_ACC_VER_FRAME_ID << std::endl;
                 vParseAccHorAccVer(frame);
                 _u16DataReadiness |= ACC_HOR_ACC_VER_READY;
                 break;
-            case (HEADING_FRAME_ID&0xFFFF):
+            case (HEADING_FRAME_ID&BYTE_MASK):
                 //std::cout << "J: 0x" << HEADING_FRAME_ID << std::endl;
                 vParseHeading(frame);
                 _u16DataReadiness |= HEADING_FRAME_READY;
