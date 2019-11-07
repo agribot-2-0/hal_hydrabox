@@ -45,6 +45,8 @@ link_directories("${PROJECT_SOURCE_DIR}")
 add_executable(hydrabox_node ${CMAKE_SOURCE_DIR}/agribot_common/src/Can.cpp src/Hydrabox.cpp src/hydrabox_node.cpp)
 target_link_libraries(hydrabox_node ${catkin_LIBRARIES})
 
+add_dependencies(hydrabox_node _agribot_msgs_generate_messages_check_deps_AgribotHeading ${catkin_EXPORTED_TARGETS})
+
 #############
 ## Install ##
 #############
