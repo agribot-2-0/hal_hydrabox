@@ -5,22 +5,21 @@
 #include <hal_hydrabox/Hydrabox.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
-#include <sensor_msgs/NavSatFix.h>
 #include <agribot_msgs/AgribotHeading.h>
-
+#include <agribot_msgs/AgribotGnss.h>
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "gnss");
+    ros::init(argc, argv, "hydrabox");
     ros::NodeHandle n;
     ros::Rate loop_rate(10);
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("agribot/imu",1);
     ros::Publisher magnetometer_pub = n.advertise<sensor_msgs::MagneticField>("agribot/magnetic_field",1);
-    ros::Publisher gps_pub = n.advertise<sensor_msgs::NavSatFix>("agribot/gps",1);
+    ros::Publisher gnss_pub = n.advertise<agribot_msgs::AgribotGnss>("agribot/gnss",1);
     ros::Publisher heading_pub = n.advertise<agribot_msgs::AgribotHeading>("agribot/heading",1);
     sensor_msgs::Imu imu_msg;
     sensor_msgs::MagneticField magnetometer_msg;
-    sensor_msgs::NavSatFix gps_msg;
+    agribot_msgs::AgribotGnss gnss_msg;
     agribot_msgs::AgribotHeading heading_msg;
 
     if(argc < 2)
@@ -66,21 +65,22 @@ int main(int argc, char **argv)
                 {
                     ROS_INFO("[Hydrabox node] Second dataset ready to publish");
                     Hydra.vClearSecondDataset();
-                    gps_msg.header.stamp = ros::Time::now();
-                    gps_msg.header.frame_id = "/agribot/gps";
-                    gps_msg.latitude = Hydra.dGetLat();
-                    gps_msg.longitude = Hydra.dGetLon();
-                    gps_msg.altitude = Hydra.dGetHei();
-                    gps_msg.status.status = Hydra.u8GetFix();
-                    gps_msg.status.service = 1; //SERVICE_GPS
-                    gps_msg.position_covariance_type = 2; //DIAGONAL_KNOWN
-                    gps_msg.position_covariance[0] = Hydra.fGetHorizontalAcc();
-                    gps_msg.position_covariance[3] = Hydra.fGetVerticalAcc();
+                    gnss_msg.header.stamp = ros::Time::now();
+                    gnss_msg.header.frame_id = "/agribot/gnss";
+                    gnss_msg.latitude = Hydra.dGetLat();
+                    gnss_msg.longitude = Hydra.dGetLon();
+                    gnss_msg.altitude = Hydra.dGetHei();
+                    gnss_msg.status.status = Hydra.u8GetFix();
+                    gnss_msg.status.service = 1; //SERVICE_gnss
+                    gnss_msg.horizaontal_accuracy = Hydra.fGetHorizontalAcc();
+                    gnss_msg.vertical_accuracy = Hydra.fGetVerticalAcc();
+                    gnss_msg.rtk = Hydra.u8GetRtk();
+                    gnss_msg.gnss_flag = Hydra.u8GetGnssFlag();
                     heading_msg.header.stamp = ros::Time::now();
                     heading_msg.header.frame_id = "/agribot/heading";
                     heading_msg.heading = Hydra.fGetHeading();
                     heading_msg.heading_accuracy = Hydra.fGetHeadingAcc();
-                    gps_pub.publish(gps_msg);
+                    gnss_pub.publish(gnss_msg);
                     heading_pub.publish(heading_msg);
                 }
             }

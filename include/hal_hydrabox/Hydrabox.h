@@ -14,7 +14,9 @@ private:
     char* _pchCanChannel;
     uint16_t _u16DataReadiness;
 
-    uint8_t u8FixType; 
+    uint8_t _u8FixType;
+    uint8_t _u8DgnssFlag;
+    uint8_t _u8RTK;
     double _dLongitude;
     double _dLatitude;
     double _dHeight;
@@ -66,4 +68,6 @@ public:
     float fGetHeadingAcc();
     float fGetHorizontalAcc();
     float fGetVerticalAcc();
+    uint8_t u8GetGnssFlag();
+    uint8_t u8GetRtk();
 };

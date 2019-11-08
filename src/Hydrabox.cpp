@@ -107,11 +107,17 @@ void Hydrabox::vParseLonLat(can_frame Frame)
 
 void Hydrabox::vParseHeightFix(can_frame Frame)
 {
-	//[4 bytes of float height in m][1 byte of fix type][1 byte of DGNSS flag][1 byte of RTK status]
-	//fix type: 0: no fix, 1: dead reckoning only, 2: 2D, 3: 3D, 4:GPS - dead reckonign combined, 5: time only fix
-	//RTK status - 0: node, 1: float, 2:fixed
+    //[4 bytes of float height in m][1 byte of fix type][1 byte of DGNSS flag][1 byte of RTK status]
+    //fix type: 0: no fix, 1: dead reckoning only, 2: 2D, 3: 3D, 4:GPS - dead reckonign combined, 5: time only fix
+    //RTK status - 0: node, 1: float, 2:fixed
     _dHeight = dConvertFromIEEE(u32GetInt32(FIRST_INT32,Frame));
-    u8FixType = Frame.data[4];
+    _u8FixType = Frame.data[4];
+    _u8DgnssFlag = Frame.data[5];
+    _u8RTK = Frame.data[6];
+    for (int i =0;i < 7;i++)
+    {
+        std::cout << std::hex << Frame.data[i] << std::endl;
+    }
 }
 
 void Hydrabox::vParseAccHorAccVer(can_frame Frame)
@@ -272,7 +278,7 @@ double Hydrabox::dGetHei()
 
 uint8_t Hydrabox::u8GetFix()
 {
-    return u8FixType;
+    return _u8FixType;
 }
 
 float Hydrabox::fGetHeading()
@@ -295,4 +301,13 @@ float Hydrabox::fGetVerticalAcc()
     return _fAccVertical;
 }
 
+uint8_t Hydrabox::u8GetGnssFlag()
+{
+    return _u8DgnssFlag;
+}
+
+uint8_t Hydrabox::u8GetRtk()
+{
+    return _u8RTK;
+}
 
