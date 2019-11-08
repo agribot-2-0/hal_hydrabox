@@ -18,6 +18,11 @@
 #define FIRST_INT32 0
 #define SECOND_INT32 4
 
+// Data delivered by hydrabox are separated into two datasets,
+// since it is possible, that first dataset (gyroscope, accelerometer
+// magnetometr and RPY) will be sended with different frequency than second
+// dataset (heading, longitude, lattitude, altitude)
+
 //first dataset:
 #define GYRO_XY_READY 0x001
 #define GYRO_Z_ACEL_X_READY 0x002
@@ -28,7 +33,7 @@
 
 //second dataset:
 #define LON_LAT_READY 0x040
-#define FIX_FRAME_READY 0x080
+#define FIX_ALTITUDE_RTG_GNSS_FRAME_READY 0x080
 #define ACC_HOR_ACC_VER_READY 0x100
 #define HEADING_FRAME_READY 0x200
 
@@ -46,7 +51,7 @@ uint32_t Hydrabox::u32GetInt32(uint8_t u8StartBit, can_frame Frame)
     ((uint32_t)Frame.data[u8StartBit+1])<<8 | ((uint32_t)Frame.data[u8StartBit]);
 }
 
-double Hydrabox::dConvertFromIEEE(uint32_t u32NumToConvert)
+double Hydrabox::dConvertFromIEEE754(uint32_t u32NumToConvert)
 {
     int iSign = ((bool)(u32NumToConvert >> 31)) ? -1 : 1;
     int32_t i32Exponent = ((int32_t)((u32NumToConvert&EXPONENT_MASK)>>23) - EXPONENT_CONST);
@@ -90,19 +95,19 @@ void Hydrabox::vParseMagnXY(can_frame Frame)
 void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
     _pfMagnXYZ[Z] = u32GetInt32(FIRST_INT32,Frame);
-    _pfRPYXYZ[X] = dConvertFromIEEE(u32GetInt32(SECOND_INT32,Frame));
+    _pfRPYXYZ[X] = dConvertFromIEEE754(u32GetInt32(SECOND_INT32,Frame));
 }
 
 void Hydrabox::vParsePitchYaw(can_frame Frame)
 {
-    _pfRPYXYZ[Y] = dConvertFromIEEE(u32GetInt32(FIRST_INT32,Frame));
-    _pfRPYXYZ[Z] = dConvertFromIEEE(u32GetInt32(SECOND_INT32,Frame));
+    _pfRPYXYZ[Y] = dConvertFromIEEE754(u32GetInt32(FIRST_INT32,Frame));
+    _pfRPYXYZ[Z] = dConvertFromIEEE754(u32GetInt32(SECOND_INT32,Frame));
 }
 
 void Hydrabox::vParseLonLat(can_frame Frame)
 {
-    _dLatitude = dConvertFromIEEE(u32GetInt32(FIRST_INT32,Frame));
-    _dLongitude = dConvertFromIEEE(u32GetInt32(SECOND_INT32,Frame));
+    _dLatitude = dConvertFromIEEE754(u32GetInt32(FIRST_INT32,Frame));
+    _dLongitude = dConvertFromIEEE754(u32GetInt32(SECOND_INT32,Frame));
 }
 
 void Hydrabox::vParseHeightFix(can_frame Frame)
@@ -110,7 +115,7 @@ void Hydrabox::vParseHeightFix(can_frame Frame)
     //[4 bytes of float height in m][1 byte of fix type][1 byte of DGNSS flag][1 byte of RTK status]
     //fix type: 0: no fix, 1: dead reckoning only, 2: 2D, 3: 3D, 4:GPS - dead reckonign combined, 5: time only fix
     //RTK status - 0: node, 1: float, 2:fixed
-    _dHeight = dConvertFromIEEE(u32GetInt32(FIRST_INT32,Frame));
+    _dHeight = dConvertFromIEEE754(u32GetInt32(FIRST_INT32,Frame));
     _u8FixType = Frame.data[4];
     _u8DgnssFlag = Frame.data[5];
     _u8RTK = Frame.data[6];
@@ -176,7 +181,7 @@ bool Hydrabox::update()
                 _u16DataReadiness |= LON_LAT_READY;
                 break;
             case (FIX_FRAME_ID&BYTE_MASK):
-                _u16DataReadiness |= FIX_FRAME_READY;
+                _u16DataReadiness |= FIX_ALTITUDE_RTG_GNSS_FRAME_READY;
                 vParseHeightFix(frame);
                 break;
             case (ACC_HOR_ACC_VER_FRAME_ID&BYTE_MASK):

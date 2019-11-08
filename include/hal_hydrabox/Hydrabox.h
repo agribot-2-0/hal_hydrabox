@@ -30,8 +30,12 @@ private:
     float _pfMagnXYZ[3];
     float _pfRPYXYZ[3];
 
+    
     uint32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
-    double dConvertFromIEEE(uint32_t u32NumToConvert);
+    
+    //arg: uint32_t u32NumToConvert - 32 bit encoded float in IEEE 754 standard
+    //return: decoded number
+    double dConvertFromIEEE754(uint32_t u32NumToConvert);
 public:
     Hydrabox(char* pchCanChannel);
 
