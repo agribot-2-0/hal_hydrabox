@@ -114,10 +114,6 @@ void Hydrabox::vParseHeightFix(can_frame Frame)
     _u8FixType = Frame.data[4];
     _u8DgnssFlag = Frame.data[5];
     _u8RTK = Frame.data[6];
-    for (int i =0;i < 7;i++)
-    {
-        std::cout << std::hex << Frame.data[i] << std::endl;
-    }
 }
 
 void Hydrabox::vParseAccHorAccVer(can_frame Frame)
@@ -152,52 +148,42 @@ bool Hydrabox::update()
         switch (frame.can_id&BYTE_MASK)
         {
             case (GYRO_XY_FRAME_ID&BYTE_MASK):
-                //std::cout << "A: 0x" << std::hex << GYRO_XY_FRAME_ID << std::endl;
                 vParseGyroXY(frame);
                 _u16DataReadiness |= GYRO_XY_READY;
                 break;
             case (GYRO_Z_ACEL_X_FRAME_ID&BYTE_MASK):
-                //std::cout << "B: 0x" << std::hex << GYRO_Z_ACEL_X_FRAME_ID << std::endl;
                 vParseGyroZAccelX(frame);
                 _u16DataReadiness |= GYRO_Z_ACEL_X_READY;
                 break;
             case (ACCEL_YZ_FRAME_ID&BYTE_MASK):
-                //std::cout << "C: 0x" << ACCEL_YZ_FRAME_ID << std::endl;
                 vParseAccelYZ(frame);
                 _u16DataReadiness |= ACCEL_YZ_READY;
                 break;
             case (MAGN_XY_FRAME_ID&BYTE_MASK):
-                //std::cout << "D: 0x" << MAGN_XY_FRAME_ID << std::endl;
                 vParseMagnXY(frame);
                 _u16DataReadiness |= MAGN_XY_READY;
                 break;
             case (MAGN_Z_ROLL_FRAME_ID&BYTE_MASK):
-                //std::cout << "E: 0x" << MAGN_Z_ROLL_FRAME_ID << std::endl;
                 vParseMagnZRoll(frame);
                 _u16DataReadiness |= MAGN_Z_ROLL_READY;
                 break;
             case (PITCH_YAW_FRAME_ID&BYTE_MASK):
-                //std::cout << "F: 0x" << PITCH_YAW_FRAME_ID << std::endl;
                 vParsePitchYaw(frame);
                 _u16DataReadiness |= PITCH_YAW_READY;
                 break;
             case (LON_LAT_FRAME_ID&BYTE_MASK):
-                //std::cout << "G: 0x" << LON_LAT_FRAME_ID << std::endl;
                 vParseLonLat(frame);
                 _u16DataReadiness |= LON_LAT_READY;
                 break;
             case (FIX_FRAME_ID&BYTE_MASK):
-                //std::cout << "H: 0x" << FIX_FRAME_ID << std::endl;
                 _u16DataReadiness |= FIX_FRAME_READY;
                 vParseHeightFix(frame);
                 break;
             case (ACC_HOR_ACC_VER_FRAME_ID&BYTE_MASK):
-                //std::cout << "I: 0x" << ACC_HOR_ACC_VER_FRAME_ID << std::endl;
                 vParseAccHorAccVer(frame);
                 _u16DataReadiness |= ACC_HOR_ACC_VER_READY;
                 break;
             case (HEADING_FRAME_ID&BYTE_MASK):
-                //std::cout << "J: 0x" << HEADING_FRAME_ID << std::endl;
                 vParseHeading(frame);
                 _u16DataReadiness |= HEADING_FRAME_READY;
                 break;
