@@ -18,9 +18,9 @@
 #define FIRST_INT32 0
 #define SECOND_INT32 4
 
-// Data delivered by hydrabox are separated into two datasets,
+// Data delivered by hydrabox is separated into two datasets,
 // since it is possible, that first dataset (gyroscope, accelerometer
-// magnetometr and RPY) will be sended with different frequency than second
+// magnetometr and RPY) will be sent with different frequency than second
 // dataset (heading, longitude, lattitude, altitude)
 
 //first dataset:
