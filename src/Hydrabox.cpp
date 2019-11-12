@@ -17,6 +17,7 @@
 #define FIRST_MANTISSA_BIT 0x400000
 #define FIRST_INT32 0
 #define SECOND_INT32 4
+#define CALCULATE_HEADING_CONST 100000
 
 // Data delivered by hydrabox is separated into two datasets,
 // since it is possible, that first dataset (gyroscope, accelerometer
@@ -130,9 +131,9 @@ void Hydrabox::vParseAccHorAccVer(can_frame Frame)
 void Hydrabox::vParseHeading(can_frame Frame)
 {
     _fHeading = u32GetInt32(FIRST_INT32,Frame);
-    _fHeading /= 100000;
+    _fHeading /= CALCULATE_HEADING_CONST;
     _fAccHeading = u32GetInt32(SECOND_INT32,Frame);
-    _fAccHeading /= 100000;
+    _fAccHeading /= CALCULATE_HEADING_CONST;
 }
 
 int Hydrabox::configure()
