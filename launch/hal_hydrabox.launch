@@ -1,0 +1,3 @@
+<launch>
+    <node name="hydrabox_node" pkg="hal_hydrabox" type="hydrabox_node" args="can0" />
+</launch>
