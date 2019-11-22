@@ -48,7 +48,6 @@ int main(int argc, char **argv)
                     {
                         if((Hydra.u16GetDataReadiness()&FIRST_DATASET_READY) == FIRST_DATASET_READY)
                         {
-                            ROS_INFO("[Hydrabox node] First dataset ready to publish");
                             Hydra.vClearFirstDataset();
                             //Publish:
                             imu_msg.header.stamp = ros::Time::now();
@@ -72,7 +71,6 @@ int main(int argc, char **argv)
                         }
                         if((Hydra.u16GetDataReadiness()&SECOND_DATASET_READY) == SECOND_DATASET_READY)
                         {
-                            ROS_INFO("[Hydrabox node] Second dataset ready to publish");
                             Hydra.vClearSecondDataset();
                             gnss_msg.header.stamp = ros::Time::now();
                             gnss_msg.header.frame_id = "gnss";
