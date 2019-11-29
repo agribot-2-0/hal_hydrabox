@@ -5,8 +5,9 @@
 #include <hal_hydrabox/Hydrabox.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <agribot_msgs/AgribotHeading.h>
-#include <agribot_msgs/AgribotGnss.h>
+//#include <agribot_msgs/AgribotGnss.h>
 
 #define INIT_INTERVAL 30 //3s
 
@@ -17,11 +18,11 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(10);
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("agribot/imu",1);
     ros::Publisher magnetometer_pub = n.advertise<sensor_msgs::MagneticField>("agribot/magnetic_field",1);
-    ros::Publisher gnss_pub = n.advertise<agribot_msgs::AgribotGnss>("agribot/gnss",1);
+    ros::Publisher gnss_pub = n.advertise<sensor_msgs::NavSatFix>("agribot/gnss",1);
     ros::Publisher heading_pub = n.advertise<agribot_msgs::AgribotHeading>("agribot/heading",1);
     sensor_msgs::Imu imu_msg;
     sensor_msgs::MagneticField magnetometer_msg;
-    agribot_msgs::AgribotGnss gnss_msg;
+    sensor_msgs::NavSatFix gnss_msg;
     agribot_msgs::AgribotHeading heading_msg;
     uint8_t u8Timer = INIT_INTERVAL;
 
@@ -79,10 +80,10 @@ int main(int argc, char **argv)
                             gnss_msg.altitude = Hydra.dGetHei();
                             gnss_msg.status.status = Hydra.u8GetFix();
                             gnss_msg.status.service = 1; //SERVICE_gnss
-                            gnss_msg.horizaontal_accuracy = Hydra.fGetHorizontalAcc();
-                            gnss_msg.vertical_accuracy = Hydra.fGetVerticalAcc();
-                            gnss_msg.rtk = Hydra.u8GetRtk();
-                            gnss_msg.gnss_flag = Hydra.u8GetGnssFlag();
+                            //gnss_msg.horizaontal_accuracy = Hydra.fGetHorizontalAcc();
+                            //gnss_msg.vertical_accuracy = Hydra.fGetVerticalAcc();
+                            //gnss_msg.rtk = Hydra.u8GetRtk();
+                            //gnss_msg.gnss_flag = Hydra.u8GetGnssFlag();
                             heading_msg.header.stamp = ros::Time::now();
                             heading_msg.header.frame_id = "heading";
                             heading_msg.heading = Hydra.fGetHeading();
