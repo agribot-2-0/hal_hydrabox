@@ -79,11 +79,10 @@ int main(int argc, char **argv)
                             gnss_msg.longitude = Hydra.dGetLon();
                             gnss_msg.altitude = Hydra.dGetHei();
                             gnss_msg.status.status = Hydra.u8GetFix();
-                            gnss_msg.status.service = 1; //SERVICE_gnss
+                            gnss_msg.status.service = Hydra.u8GetGnssFlag(); //SERVICE_gnss
                             //gnss_msg.horizaontal_accuracy = Hydra.fGetHorizontalAcc();
                             //gnss_msg.vertical_accuracy = Hydra.fGetVerticalAcc();
                             //gnss_msg.rtk = Hydra.u8GetRtk();
-                            //gnss_msg.gnss_flag = Hydra.u8GetGnssFlag();
                             heading_msg.header.stamp = ros::Time::now();
                             heading_msg.header.frame_id = "heading";
                             heading_msg.heading = Hydra.fGetHeading();
