@@ -39,10 +39,10 @@ catkin_package(
 include_directories(
  include
  ${catkin_INCLUDE_DIRS}
- ${CMAKE_SOURCE_DIR}/agribot_common/include
+ ${agribot_common_SOURCE_DIR}/include
 )
 link_directories("${PROJECT_SOURCE_DIR}")
-add_executable(hydrabox_node ${CMAKE_SOURCE_DIR}/agribot_common/src/Can.cpp src/Hydrabox.cpp src/hydrabox_node.cpp)
+add_executable(hydrabox_node ${agribot_common_SOURCE_DIR}/src/Can.cpp src/Hydrabox.cpp src/hydrabox_node.cpp)
 target_link_libraries(hydrabox_node ${catkin_LIBRARIES})
 
 add_dependencies(hydrabox_node ${catkin_EXPORTED_TARGETS})
@@ -55,4 +55,3 @@ add_dependencies(hydrabox_node ${catkin_EXPORTED_TARGETS})
 #############
 ## Testing ##
 #############
-
