@@ -30,8 +30,7 @@ private:
     float _pfMagnXYZ[3];
     float _pfRPYXYZ[3];
 
-    
-    uint32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
+    int32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
     
     //arg: uint32_t u32NumToConvert - 32 bit encoded float in IEEE 754 standard
     //return: decoded number

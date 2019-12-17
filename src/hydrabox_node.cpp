@@ -6,8 +6,6 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/NavSatFix.h>
-#include <agribot_msgs/AgribotHeading.h>
-//#include <agribot_msgs/AgribotGnss.h>
 
 #define INIT_INTERVAL 30 //3s
 
@@ -19,11 +17,11 @@ int main(int argc, char **argv)
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("agribot/imu",1);
     ros::Publisher magnetometer_pub = n.advertise<sensor_msgs::MagneticField>("agribot/magnetic_field",1);
     ros::Publisher gnss_pub = n.advertise<sensor_msgs::NavSatFix>("agribot/gnss",1);
-    ros::Publisher heading_pub = n.advertise<agribot_msgs::AgribotHeading>("agribot/heading",1);
+    ros::Publisher heading_pub = n.advertise<sensor_msgs::Imu>("agribot/heading",1);
     sensor_msgs::Imu imu_msg;
     sensor_msgs::MagneticField magnetometer_msg;
     sensor_msgs::NavSatFix gnss_msg;
-    agribot_msgs::AgribotHeading heading_msg;
+    sensor_msgs::Imu heading_msg;
     uint8_t u8Timer = INIT_INTERVAL;
 
     if(argc < 2)
@@ -63,7 +61,7 @@ int main(int argc, char **argv)
                             imu_msg.linear_acceleration.y = Hydra.pfGetAccel()[1];
                             imu_msg.linear_acceleration.z = Hydra.pfGetAccel()[2];
                             magnetometer_msg.header.stamp = ros::Time::now();
-                            magnetometer_msg.header.frame_id = "magnetometer";
+                            magnetometer_msg.header.frame_id = "magnetometer";                            
                             magnetometer_msg.magnetic_field.x = Hydra.pfGetMagnetometr()[0];
                             magnetometer_msg.magnetic_field.y = Hydra.pfGetMagnetometr()[1];
                             magnetometer_msg.magnetic_field.z = Hydra.pfGetMagnetometr()[2];
@@ -80,13 +78,15 @@ int main(int argc, char **argv)
                             gnss_msg.altitude = Hydra.dGetHei();
                             gnss_msg.status.status = Hydra.u8GetFix();
                             gnss_msg.status.service = Hydra.u8GetGnssFlag(); //SERVICE_gnss
-                            //gnss_msg.horizaontal_accuracy = Hydra.fGetHorizontalAcc();
-                            //gnss_msg.vertical_accuracy = Hydra.fGetVerticalAcc();
+                            gnss_msg.position_covariance[0] = Hydra.fGetHorizontalAcc();
+                            gnss_msg.position_covariance[8] = Hydra.fGetVerticalAcc();
                             //gnss_msg.rtk = Hydra.u8GetRtk();
+                            tf2::Quaternion quat;
+                            quat.setRPY(0, 0, Hydra.fGetHeading());
                             heading_msg.header.stamp = ros::Time::now();
                             heading_msg.header.frame_id = "heading";
-                            heading_msg.heading = Hydra.fGetHeading();
-                            heading_msg.heading_accuracy = Hydra.fGetHeadingAcc();
+                            heading_msg.orientation = tf2::toMsg(quat);
+                            heading_msg.orientation_covariance[8] = Hydra.fGetHeadingAcc();;
                             gnss_pub.publish(gnss_msg);
                             heading_pub.publish(heading_msg);
                         }
