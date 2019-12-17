@@ -61,7 +61,7 @@ int main(int argc, char **argv)
                             imu_msg.linear_acceleration.y = Hydra.pfGetAccel()[1];
                             imu_msg.linear_acceleration.z = Hydra.pfGetAccel()[2];
                             magnetometer_msg.header.stamp = ros::Time::now();
-                            magnetometer_msg.header.frame_id = "magnetometer";                            
+                            magnetometer_msg.header.frame_id = "magnetometer";
                             magnetometer_msg.magnetic_field.x = Hydra.pfGetMagnetometr()[0];
                             magnetometer_msg.magnetic_field.y = Hydra.pfGetMagnetometr()[1];
                             magnetometer_msg.magnetic_field.z = Hydra.pfGetMagnetometr()[2];
