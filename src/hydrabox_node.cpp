@@ -9,6 +9,10 @@
 
 #define INIT_INTERVAL 30 //3s
 
+#define LINEAR_ACCELERATION_COVARIANCE  0.001
+#define ANGULAR_VELOCITY_COVARIANCE     0.001
+#define MAGNETOMETER_COVARIANCE         0.001
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "hydrabox");
@@ -50,21 +54,31 @@ int main(int argc, char **argv)
                             Hydra.vClearFirstDataset();
                             //Publish:
                             imu_msg.header.stamp = ros::Time::now();
-                            imu_msg.header.frame_id = "imu";
+                            imu_msg.header.frame_id = "imu_link";
                             tf2::Quaternion quat;
                             quat.setRPY(Hydra.pfGetRPY()[0], Hydra.pfGetRPY()[1], Hydra.pfGetRPY()[2]);
                             imu_msg.orientation = tf2::toMsg(quat);
                             imu_msg.angular_velocity.x = Hydra.pfGetGyro()[0];
                             imu_msg.angular_velocity.y = Hydra.pfGetGyro()[1];
                             imu_msg.angular_velocity.z = Hydra.pfGetGyro()[2];
+                            imu_msg.angular_velocity_covariance[0] = ANGULAR_VELOCITY_COVARIANCE;
+                            imu_msg.angular_velocity_covariance[4] = ANGULAR_VELOCITY_COVARIANCE;
+                            imu_msg.angular_velocity_covariance[8] = ANGULAR_VELOCITY_COVARIANCE;
                             imu_msg.linear_acceleration.x = Hydra.pfGetAccel()[0];
                             imu_msg.linear_acceleration.y = Hydra.pfGetAccel()[1];
                             imu_msg.linear_acceleration.z = Hydra.pfGetAccel()[2];
+                            imu_msg.linear_acceleration_covariance[0] = LINEAR_ACCELERATION_COVARIANCE;
+                            imu_msg.linear_acceleration_covariance[4] = LINEAR_ACCELERATION_COVARIANCE;
+                            imu_msg.linear_acceleration_covariance[8] = LINEAR_ACCELERATION_COVARIANCE;
                             magnetometer_msg.header.stamp = ros::Time::now();
-                            magnetometer_msg.header.frame_id = "magnetometer";
+                            magnetometer_msg.header.frame_id = "imu_link";
                             magnetometer_msg.magnetic_field.x = Hydra.pfGetMagnetometr()[0];
                             magnetometer_msg.magnetic_field.y = Hydra.pfGetMagnetometr()[1];
                             magnetometer_msg.magnetic_field.z = Hydra.pfGetMagnetometr()[2];
+                            magnetometer_msg.magnetic_field_covariance[0] = MAGNETOMETER_COVARIANCE;
+                            magnetometer_msg.magnetic_field_covariance[4] = MAGNETOMETER_COVARIANCE;
+                            magnetometer_msg.magnetic_field_covariance[8] = MAGNETOMETER_COVARIANCE;
+
                             imu_pub.publish(imu_msg);
                             magnetometer_pub.publish(magnetometer_msg);
                         }
@@ -72,19 +86,22 @@ int main(int argc, char **argv)
                         {
                             Hydra.vClearSecondDataset();
                             gnss_msg.header.stamp = ros::Time::now();
-                            gnss_msg.header.frame_id = "gnss";
+                            gnss_msg.header.frame_id = "gps_link";
                             gnss_msg.latitude = Hydra.dGetLat();
                             gnss_msg.longitude = Hydra.dGetLon();
                             gnss_msg.altitude = Hydra.dGetHei();
                             gnss_msg.status.status = Hydra.u8GetFix();
                             gnss_msg.status.service = Hydra.u8GetGnssFlag(); //SERVICE_gnss
-                            gnss_msg.position_covariance[0] = Hydra.fGetHorizontalAcc();
-                            gnss_msg.position_covariance[8] = Hydra.fGetVerticalAcc();
+                            float horizontalAcc = Hydra.fGetHorizontalAcc();
+                            float verticalAcc = Hydra.fGetVerticalAcc();
+                            gnss_msg.position_covariance[0] = horizontalAcc;
+                            gnss_msg.position_covariance[4] = horizontalAcc;
+                            gnss_msg.position_covariance[8] = verticalAcc;
                             //gnss_msg.rtk = Hydra.u8GetRtk();
                             tf2::Quaternion quat;
                             quat.setRPY(0, 0, Hydra.fGetHeading());
                             heading_msg.header.stamp = ros::Time::now();
-                            heading_msg.header.frame_id = "heading";
+                            heading_msg.header.frame_id = "gps_link";
                             heading_msg.orientation = tf2::toMsg(quat);
                             heading_msg.orientation_covariance[8] = Hydra.fGetHeadingAcc();;
                             gnss_pub.publish(gnss_msg);
