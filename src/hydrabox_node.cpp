@@ -5,8 +5,7 @@
 #include <hal_hydrabox/Hydrabox.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
-#include <agribot_msgs/AgribotHeading.h>
-#include <agribot_msgs/AgribotGnss.h>
+#include <sensor_msgs/NavSatFix.h>
 
 #define INIT_INTERVAL 30 //3s
 
@@ -17,12 +16,12 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(10);
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("agribot/imu",1);
     ros::Publisher magnetometer_pub = n.advertise<sensor_msgs::MagneticField>("agribot/magnetic_field",1);
-    ros::Publisher gnss_pub = n.advertise<agribot_msgs::AgribotGnss>("agribot/gnss",1);
-    ros::Publisher heading_pub = n.advertise<agribot_msgs::AgribotHeading>("agribot/heading",1);
+    ros::Publisher gnss_pub = n.advertise<sensor_msgs::NavSatFix>("agribot/gnss",1);
+    ros::Publisher heading_pub = n.advertise<sensor_msgs::Imu>("agribot/heading",1);
     sensor_msgs::Imu imu_msg;
     sensor_msgs::MagneticField magnetometer_msg;
-    agribot_msgs::AgribotGnss gnss_msg;
-    agribot_msgs::AgribotHeading heading_msg;
+    sensor_msgs::NavSatFix gnss_msg;
+    sensor_msgs::Imu heading_msg;
     uint8_t u8Timer = INIT_INTERVAL;
 
     if(argc < 2)
@@ -48,7 +47,6 @@ int main(int argc, char **argv)
                     {
                         if((Hydra.u16GetDataReadiness()&FIRST_DATASET_READY) == FIRST_DATASET_READY)
                         {
-                            ROS_INFO("[Hydrabox node] First dataset ready to publish");
                             Hydra.vClearFirstDataset();
                             //Publish:
                             imu_msg.header.stamp = ros::Time::now();
@@ -72,7 +70,6 @@ int main(int argc, char **argv)
                         }
                         if((Hydra.u16GetDataReadiness()&SECOND_DATASET_READY) == SECOND_DATASET_READY)
                         {
-                            ROS_INFO("[Hydrabox node] Second dataset ready to publish");
                             Hydra.vClearSecondDataset();
                             gnss_msg.header.stamp = ros::Time::now();
                             gnss_msg.header.frame_id = "gnss";
@@ -80,15 +77,16 @@ int main(int argc, char **argv)
                             gnss_msg.longitude = Hydra.dGetLon();
                             gnss_msg.altitude = Hydra.dGetHei();
                             gnss_msg.status.status = Hydra.u8GetFix();
-                            gnss_msg.status.service = 1; //SERVICE_gnss
-                            gnss_msg.horizaontal_accuracy = Hydra.fGetHorizontalAcc();
-                            gnss_msg.vertical_accuracy = Hydra.fGetVerticalAcc();
-                            gnss_msg.rtk = Hydra.u8GetRtk();
-                            gnss_msg.gnss_flag = Hydra.u8GetGnssFlag();
+                            gnss_msg.status.service = Hydra.u8GetGnssFlag(); //SERVICE_gnss
+                            gnss_msg.position_covariance[0] = Hydra.fGetHorizontalAcc();
+                            gnss_msg.position_covariance[8] = Hydra.fGetVerticalAcc();
+                            //gnss_msg.rtk = Hydra.u8GetRtk();
+                            tf2::Quaternion quat;
+                            quat.setRPY(0, 0, Hydra.fGetHeading());
                             heading_msg.header.stamp = ros::Time::now();
                             heading_msg.header.frame_id = "heading";
-                            heading_msg.heading = Hydra.fGetHeading();
-                            heading_msg.heading_accuracy = Hydra.fGetHeadingAcc();
+                            heading_msg.orientation = tf2::toMsg(quat);
+                            heading_msg.orientation_covariance[8] = Hydra.fGetHeadingAcc();;
                             gnss_pub.publish(gnss_msg);
                             heading_pub.publish(heading_msg);
                         }

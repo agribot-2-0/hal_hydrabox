@@ -19,6 +19,9 @@
 #define SECOND_INT32 4
 #define CALCULATE_HEADING_CONST 100000
 
+#define DEG_TO_RAD (M_PI/180)
+#define FROM_MM_TO_M 0.001
+
 // Data delivered by hydrabox is separated into two datasets,
 // since it is possible, that first dataset (gyroscope, accelerometer
 // magnetometr and RPY) will be sent with different frequency than second
@@ -46,10 +49,10 @@ Hydrabox::Hydrabox(char* pchCanChannel)
     _u16DataReadiness = 0;
 }
 
-uint32_t Hydrabox::u32GetInt32(uint8_t u8StartBit, can_frame Frame)
+int32_t Hydrabox::u32GetInt32(uint8_t u8StartBit, can_frame Frame)
 {
-    return ((uint32_t)Frame.data[u8StartBit+3])<<24 | ((uint32_t)Frame.data[u8StartBit+2])<<16 |
-    ((uint32_t)Frame.data[u8StartBit+1])<<8 | ((uint32_t)Frame.data[u8StartBit]);
+    return ((int32_t)Frame.data[u8StartBit+3])<<24 | ((int32_t)Frame.data[u8StartBit+2])<<16 |
+    ((int32_t)Frame.data[u8StartBit+1])<<8 | ((int32_t)Frame.data[u8StartBit]);
 }
 
 double Hydrabox::dConvertFromIEEE754(uint32_t u32NumToConvert)
@@ -65,7 +68,7 @@ double Hydrabox::dConvertFromIEEE754(uint32_t u32NumToConvert)
         u32BitMask = u32BitMask >> 1;
         u8BitCnt--;
     }
-    dMantissa*=iSign;
+    dMantissa *= iSign;
     return dMantissa;
 }
 
@@ -125,7 +128,9 @@ void Hydrabox::vParseHeightFix(can_frame Frame)
 void Hydrabox::vParseAccHorAccVer(can_frame Frame)
 {
     _fAccHorizontal = u32GetInt32(FIRST_INT32,Frame);
+    _fAccHorizontal *= FROM_MM_TO_M;
     _fAccVertical = u32GetInt32(SECOND_INT32,Frame);
+    _fAccVertical *= FROM_MM_TO_M;
 }
 
 void Hydrabox::vParseHeading(can_frame Frame)
@@ -134,6 +139,7 @@ void Hydrabox::vParseHeading(can_frame Frame)
     _fHeading /= CALCULATE_HEADING_CONST;
     _fAccHeading = u32GetInt32(SECOND_INT32,Frame);
     _fAccHeading /= CALCULATE_HEADING_CONST;
+    _fAccHeading *= DEG_TO_RAD;
 }
 
 int Hydrabox::configure()
