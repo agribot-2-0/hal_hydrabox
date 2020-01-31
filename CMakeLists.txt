@@ -41,8 +41,9 @@ include_directories(
  ${catkin_INCLUDE_DIRS}
  ${agribot_common_SOURCE_DIR}/include
 )
+
 link_directories("${PROJECT_SOURCE_DIR}")
-add_executable(hydrabox_node ${agribot_common_SOURCE_DIR}/src/Can.cpp src/Hydrabox.cpp src/hydrabox_node.cpp)
+add_executable(hydrabox_node src/Hydrabox.cpp src/hydrabox_node.cpp)
 target_link_libraries(hydrabox_node ${catkin_LIBRARIES})
 
 add_dependencies(hydrabox_node ${catkin_EXPORTED_TARGETS})
