@@ -44,7 +44,7 @@ include_directories(
 
 link_directories("${PROJECT_SOURCE_DIR}")
 add_executable(hydrabox_node src/Hydrabox.cpp src/hydrabox_node.cpp)
-target_link_libraries(hydrabox_node ${catkin_LIBRARIES} agribot_common)
+target_link_libraries(hydrabox_node ${agribot_common_LIBRARIES} ${catkin_LIBRARIES})
 
 add_dependencies(hydrabox_node ${catkin_EXPORTED_TARGETS})
 
