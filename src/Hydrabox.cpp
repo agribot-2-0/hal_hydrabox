@@ -19,12 +19,17 @@
 #define SECOND_INT32 4
 #define CALCULATE_HEADING_CONST 100000
 
+#define GAUSS_TO_TESSLA 0.0001
+
 // Below three constants are taken from datasheet of the devices,
 // for the proper ranges (accelerometer and gyroscope model - LSM6DS33, magnetometer - LIS3MDL).
 // Datasheets of devices are located in Agribot_Docs.
 #define G_PER_LSB (0.122)*0.001 // +/- 4g
 #define DPS_PER_LSB (35)*0.001 // +/- 1000dps
 #define GAUSS_PER_LSB 1/6842 // +/- 4gauss
+#define TESLA_PER_LSB (GAUSS_PER_LSB)*GAUSS_TO_TESSLA
+
+#define G_TO_M_SS 9.8
 
 #define DEG_TO_RAD (M_PI/180)
 #define FROM_MM_TO_M 0.001
@@ -88,13 +93,13 @@ void Hydrabox::vParseGyroXY(can_frame Frame)
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
     _pfGyroXYZ[Z] = ((float)u32GetInt32(FIRST_INT32,Frame))*DPS_PER_LSB;
-    _pfAccelXYZ[X] = ((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB;
+    _pfAccelXYZ[X] = ((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB*G_TO_M_SS;
 }
 
 void Hydrabox::vParseAccelYZ(can_frame Frame)
 {
-    _pfAccelXYZ[Y] = ((float)u32GetInt32(FIRST_INT32,Frame))*G_PER_LSB;
-    _pfAccelXYZ[Z] = ((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB;
+    _pfAccelXYZ[Y] = ((float)u32GetInt32(FIRST_INT32,Frame))*G_PER_LSB*G_TO_M_SS;
+    _pfAccelXYZ[Z] = ((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB*G_TO_M_SS;
 }
 
 void Hydrabox::vParseMagnXY(can_frame Frame)
