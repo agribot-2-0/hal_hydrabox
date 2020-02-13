@@ -19,7 +19,9 @@
 #define SECOND_INT32 4
 #define CALCULATE_HEADING_CONST 100000
 
-
+// Below three constants are taken from datasheet of the devices,
+// for the proper ranges (accelerometer and gyroscope model - LSM6DS33, magnetometer - LIS3MDL).
+// Datasheets of devices are located in Agribot_Docs.
 #define G_PER_LSB (0.122)*0.001 // +/- 4g
 #define DPS_PER_LSB (35)*0.001 // +/- 1000dps
 #define GAUSS_PER_LSB 1/6842 // +/- 4gauss
