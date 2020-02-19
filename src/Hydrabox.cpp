@@ -1,5 +1,7 @@
 #include <hal_hydrabox/Hydrabox.h>
 
+#define DEG_TO_RAD (M_PI/180)
+
 #define GYRO_XY_FRAME_ID            0x1DFFD065
 #define GYRO_Z_ACEL_X_FRAME_ID      0x1DFFD165
 #define ACCEL_YZ_FRAME_ID           0x1DFFD265
@@ -26,12 +28,12 @@
 // Datasheets of devices are located in Agribot_Docs.
 #define G_PER_LSB (0.122)*0.001 // +/- 4g
 #define DPS_PER_LSB (35)*0.001 // +/- 1000dps
+
 #define GAUSS_PER_LSB 1/6842 // +/- 4gauss
 #define TESLA_PER_LSB (GAUSS_PER_LSB)*GAUSS_TO_TESSLA
 
-#define G_TO_M_SS 9.8
+#define G_TO_M_SS 9.80655
 
-#define DEG_TO_RAD (M_PI/180)
 #define FROM_MM_TO_M 0.001
 
 // Data delivered by hydrabox is separated into two datasets,
@@ -84,33 +86,52 @@ double Hydrabox::dConvertFromIEEE754(uint32_t u32NumToConvert)
     return dMantissa;
 }
 
+#define GYRO_OFFSET_X 8.14532816883545
+#define GYRO_OFFSET_Y -2.97285405625107
+#define GYRO_OFFSET_Z 6.58211754928302
+
 void Hydrabox::vParseGyroXY(can_frame Frame)
 {
-    _pfGyroXYZ[X] = ((float)u32GetInt32(FIRST_INT32,Frame))*DPS_PER_LSB;
-    _pfGyroXYZ[Y] = ((float)u32GetInt32(SECOND_INT32,Frame))*DPS_PER_LSB;
+    _pfGyroXYZ[Y] = -(((float)u32GetInt32(FIRST_INT32,Frame))*DPS_PER_LSB + GYRO_OFFSET_Y)*DEG_TO_RAD;
+    _pfGyroXYZ[X] = -(((float)u32GetInt32(SECOND_INT32,Frame))*DPS_PER_LSB + GYRO_OFFSET_X)*DEG_TO_RAD;
 }
+
+#define ACCEL_OFFSET_X 0.19768423
+#define ACCEL_OFFSET_Y -0.0894548
+#define ACCEL_OFFSET_Z 0.0089
 
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
-    _pfGyroXYZ[Z] = ((float)u32GetInt32(FIRST_INT32,Frame))*DPS_PER_LSB;
-    _pfAccelXYZ[X] = ((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB*G_TO_M_SS;
+    _pfGyroXYZ[Z] = -(((float)u32GetInt32(FIRST_INT32,Frame))*DPS_PER_LSB + GYRO_OFFSET_Z)*DEG_TO_RAD;
+    _pfAccelXYZ[Y] = -(((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB*G_TO_M_SS+ACCEL_OFFSET_Y);
 }
 
 void Hydrabox::vParseAccelYZ(can_frame Frame)
 {
-    _pfAccelXYZ[Y] = ((float)u32GetInt32(FIRST_INT32,Frame))*G_PER_LSB*G_TO_M_SS;
-    _pfAccelXYZ[Z] = ((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB*G_TO_M_SS;
+    _pfAccelXYZ[X] = -(((float)u32GetInt32(FIRST_INT32,Frame))*G_PER_LSB*G_TO_M_SS+ACCEL_OFFSET_X);
+    _pfAccelXYZ[Z] = -(((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB*G_TO_M_SS+ACCEL_OFFSET_Z);
 }
+
+#define OFFSET_X -6.940952789591393e-05
+#define OFFSET_Y -8.607132804172579e-05
+#define OFFSET_Z 8.777404036663938e-05
+
+
+#define SCALE_X -0.47910854225363864
+#define SCALE_Y -0.5335752068409043
+#define SCALE_Z -0.5455456453018528
+
+#define GAUSS_TO_TESLA 0.0001
 
 void Hydrabox::vParseMagnXY(can_frame Frame)
 {
-    _pfMagnXYZ[X] = ((float)u32GetInt32(FIRST_INT32,Frame))*GAUSS_PER_LSB;
-    _pfMagnXYZ[Y] = ((float)u32GetInt32(SECOND_INT32,Frame))*GAUSS_PER_LSB;
+    _pfMagnXYZ[Y] = ((((float)u32GetInt32(FIRST_INT32,Frame))*GAUSS_PER_LSB)*GAUSS_TO_TESLA-OFFSET_Y)*SCALE_Y;
+    _pfMagnXYZ[X] = ((((float)u32GetInt32(SECOND_INT32,Frame))*GAUSS_PER_LSB)*GAUSS_TO_TESLA-OFFSET_X)*SCALE_X;
 }
 
 void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
-    _pfMagnXYZ[Z] = ((float)u32GetInt32(FIRST_INT32,Frame))*GAUSS_PER_LSB;
+    _pfMagnXYZ[Z] = ((((float)u32GetInt32(FIRST_INT32,Frame))*GAUSS_PER_LSB)*GAUSS_TO_TESLA-OFFSET_Z)*SCALE_Z;
     _pfRPYXYZ[X] = dConvertFromIEEE754(u32GetInt32(SECOND_INT32,Frame));
 }
 
