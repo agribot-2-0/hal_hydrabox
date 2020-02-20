@@ -18,7 +18,7 @@ Z_vec = []
 phase3 = False
 
 def collect_magn(data):
-    global phase3,X,Y,Z
+    global phase3,X_vec,Y_vec,Z_vec
 
     if phase3 == False:
         with open('magn_data.csv', mode='a') as magn_data:

@@ -30,6 +30,11 @@ private:
     float _pfMagnXYZ[3];
     float _pfRPYXYZ[3];
 
+    // [magn_offset_x magn_offset_y magn_offset_z
+    //  magn_scale_x magn_scale_y magn_scale_z gyro_offset_x gyro_offset_y gyro_offset_z
+    //  accel_offset_x accel_offset_y accel_offset_z]
+    float pfOffsets[12];
+
     int32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
     
     //arg: uint32_t u32NumToConvert - 32 bit encoded float in IEEE 754 standard
@@ -37,6 +42,7 @@ private:
     double dConvertFromIEEE754(uint32_t u32NumToConvert);
 public:
     Hydrabox(char* pchCanChannel);
+    void vInitOffsets(char** fpParameters);
 
     void vParseGyroXY(can_frame Frame);
     void vParseGyroZAccelX(can_frame Frame);

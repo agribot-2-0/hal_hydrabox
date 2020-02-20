@@ -6,6 +6,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/NavSatFix.h>
+#include "hal_hydrabox/TriggerOffsetLoad.h"
 
 #define INIT_INTERVAL 30 //3s
 
@@ -35,6 +36,7 @@ int main(int argc, char **argv)
     }
 
     Hydrabox Hydra(argv[1]);
+    //Hydra.vInitOffsets(argv);
     while(ros::ok())
     {
         u8Timer++;
