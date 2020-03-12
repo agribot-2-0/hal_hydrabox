@@ -55,6 +55,24 @@
 #define ACC_HOR_ACC_VER_READY 0x100
 #define HEADING_FRAME_READY 0x200
 
+#define GYRO_OFFSET_X 0
+#define GYRO_OFFSET_Y 0
+#define GYRO_OFFSET_Z 0
+
+#define ACCEL_OFFSET_X 0
+#define ACCEL_OFFSET_Y 0
+#define ACCEL_OFFSET_Z 0
+
+#define OFFSET_X -6.340982145047747e-05 
+#define OFFSET_Y -5.059193244960625e-05
+#define OFFSET_Z 8.387167599721579e-05
+
+#define SCALE_X -2.651162977341232
+#define SCALE_Y -3.264704815154654
+#define SCALE_Z -0.2768223453470906
+
+#define GAUSS_TO_TESLA 0.0001
+
 enum eCoord {X=0, Y=1, Z=2};
 
 Hydrabox::Hydrabox(char* pchCanChannel)
@@ -86,30 +104,11 @@ double Hydrabox::dConvertFromIEEE754(uint32_t u32NumToConvert)
     return dMantissa;
 }
 
-// #define GYRO_OFFSET_X 8.14532816883545
-// #define GYRO_OFFSET_Y -2.97285405625107
-// #define GYRO_OFFSET_Z 6.58211754928302
-
-
-#define GYRO_OFFSET_X 0
-#define GYRO_OFFSET_Y 0
-#define GYRO_OFFSET_Z 0
-
-
 void Hydrabox::vParseGyroXY(can_frame Frame)
 {
     _pfGyroXYZ[Y] = -(((float)u32GetInt32(FIRST_INT32,Frame))*DPS_PER_LSB + GYRO_OFFSET_Y)*DEG_TO_RAD;
     _pfGyroXYZ[X] = -(((float)u32GetInt32(SECOND_INT32,Frame))*DPS_PER_LSB + GYRO_OFFSET_X)*DEG_TO_RAD;
 }
-
-// #define ACCEL_OFFSET_X 0.19768423
-// #define ACCEL_OFFSET_Y -0.0894548
-// #define ACCEL_OFFSET_Z 0.0089
-
-#define ACCEL_OFFSET_X 0
-#define ACCEL_OFFSET_Y 0
-#define ACCEL_OFFSET_Z 0
-
 
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
@@ -122,26 +121,6 @@ void Hydrabox::vParseAccelYZ(can_frame Frame)
     _pfAccelXYZ[X] = -(((float)u32GetInt32(FIRST_INT32,Frame))*G_PER_LSB*G_TO_M_SS+ACCEL_OFFSET_X);
     _pfAccelXYZ[Z] = -(((float)u32GetInt32(SECOND_INT32,Frame))*G_PER_LSB*G_TO_M_SS+ACCEL_OFFSET_Z);
 }
-
-#define OFFSET_X -6.340982145047747e-05 
-#define OFFSET_Y -5.059193244960625e-05
-#define OFFSET_Z 8.387167599721579e-05
-
-
-#define SCALE_X -2.651162977341232
-#define SCALE_Y -3.264704815154654
-#define SCALE_Z -0.2768223453470906
-
-// #define OFFSET_X 0
-// #define OFFSET_Y 0
-// #define OFFSET_Z 0
-
-// #define SCALE_X 1
-// #define SCALE_Y 1
-// #define SCALE_Z 1
-
-
-#define GAUSS_TO_TESLA 0.0001
 
 void Hydrabox::vParseMagnXY(can_frame Frame)
 {
