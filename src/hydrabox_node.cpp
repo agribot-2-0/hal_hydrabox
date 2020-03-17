@@ -9,8 +9,8 @@
 
 #define INIT_INTERVAL 30 //3s
 
-#define LINEAR_ACCELERATION_COVARIANCE  0.001
-#define ANGULAR_VELOCITY_COVARIANCE     0.001
+#define LINEAR_ACCELERATION_COVARIANCE  0.04
+#define ANGULAR_VELOCITY_COVARIANCE     0.02
 #define MAGNETOMETER_COVARIANCE         0.001
 
 int main(int argc, char **argv)
@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "hydrabox");
     ros::NodeHandle n;
     ros::Rate loop_rate(10);
-    ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("agribot/imu",1);
+    ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("agribot/imu/raw",1);
     ros::Publisher magnetometer_pub = n.advertise<sensor_msgs::MagneticField>("agribot/magnetic_field",1);
     ros::Publisher gnss_pub = n.advertise<sensor_msgs::NavSatFix>("agribot/gnss",1);
     ros::Publisher heading_pub = n.advertise<sensor_msgs::Imu>("agribot/heading",1);
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
                             imu_msg.linear_acceleration_covariance[4] = LINEAR_ACCELERATION_COVARIANCE;
                             imu_msg.linear_acceleration_covariance[8] = LINEAR_ACCELERATION_COVARIANCE;
                             magnetometer_msg.header.stamp = ros::Time::now();
-                            magnetometer_msg.header.frame_id = "imu_link";
+                            magnetometer_msg.header.frame_id = "magnetic_link";
                             magnetometer_msg.magnetic_field.x = Hydra.pfGetMagnetometr()[0];
                             magnetometer_msg.magnetic_field.y = Hydra.pfGetMagnetometr()[1];
                             magnetometer_msg.magnetic_field.z = Hydra.pfGetMagnetometr()[2];
