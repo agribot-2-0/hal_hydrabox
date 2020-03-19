@@ -9,7 +9,7 @@
 
 class Hydrabox: public AgribotComponent
 {
-private:
+ private:
     Can _CanHandler;
     char* _pchCanChannel;
     uint16_t _u16DataReadiness;
@@ -25,18 +25,18 @@ private:
     float _fHeading;
     float _fAccHeading;
 
-    float _pfAccelXYZ[3]; 
+    float _pfAccelXYZ[3];
     float _pfGyroXYZ[3];
     float _pfMagnXYZ[3];
     float _pfRPYXYZ[3];
 
     int32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
-    
-    //arg: uint32_t u32NumToConvert - 32 bit encoded float in IEEE 754 standard
-    //return: decoded number
+
+    // arg: uint32_t u32NumToConvert - 32 bit encoded float in IEEE 754 standard
+    // return: decoded number
     double dConvertFromIEEE754(uint32_t u32NumToConvert);
-public:
-    Hydrabox(char* pchCanChannel);
+ public:
+    explicit Hydrabox(char* pchCanChannel);
 
     void vParseGyroXY(can_frame Frame);
     void vParseGyroZAccelX(can_frame Frame);
