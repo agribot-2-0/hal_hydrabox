@@ -87,7 +87,7 @@ int main(int argc, char **argv)
                             imu_msg.linear_acceleration_covariance[8] =
                                 LINEAR_ACCELERATION_COVARIANCE;
                             magnetometer_msg.header.stamp = ros::Time::now();
-                            magnetometer_msg.header.frame_id = "magnetic_link";
+                            magnetometer_msg.header.frame_id = "magnetometer_link";
                             magnetometer_msg.magnetic_field.x =
                                 Hydra.pfGetMagnetometr()[0];
                             magnetometer_msg.magnetic_field.y =
