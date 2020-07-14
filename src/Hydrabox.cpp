@@ -1,3 +1,7 @@
+/*
+* Copyright (C) 2020 Agribot. All rights reserved.
+*/
+
 #include <hal_hydrabox/Hydrabox.h>
 
 #define DEG_TO_RAD (M_PI/180)
@@ -362,4 +366,3 @@ uint8_t Hydrabox::u8GetRtk()
 {
     return _u8RTK;
 }
-
