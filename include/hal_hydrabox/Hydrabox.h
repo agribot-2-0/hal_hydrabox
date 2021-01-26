@@ -24,15 +24,15 @@ class Hydrabox: public AgribotComponent
     double _dLongitude;
     double _dLatitude;
     double _dHeight;
-    float _fAccHorizontal;
-    float _fAccVertical;
-    float _fHeading;
-    float _fAccHeading;
+    double _fAccHorizontal;
+    double _fAccVertical;
+    double _fHeading;
+    double _fAccHeading;
 
-    float _pfAccelXYZ[3];
-    float _pfGyroXYZ[3];
-    float _pfMagnXYZ[3];
-    float _pfRPYXYZ[3];
+    double _pfAccelXYZ[3];
+    double _pfGyroXYZ[3];
+    double _pfMagnXYZ[3];
+    double _pfRPYXYZ[3];
 
     int32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
 
@@ -63,18 +63,18 @@ class Hydrabox: public AgribotComponent
     void vClearFirstDataset();
     void vClearSecondDataset();
 
-    float* pfGetGyro();
-    float* pfGetAccel();
-    float* pfGetMagnetometr();
-    float* pfGetRPY();
+    double* pfGetGyro();
+    double* pfGetAccel();
+    double* pfGetMagnetometr();
+    double* pfGetRPY();
     double dGetLon();
     double dGetLat();
     double dGetHei();
     uint8_t u8GetFix();
-    float fGetHeading();
-    float fGetHeadingAcc();
-    float fGetHorizontalAcc();
-    float fGetVerticalAcc();
+    double fGetHeading();
+    double fGetHeadingAcc();
+    double fGetHorizontalAcc();
+    double fGetVerticalAcc();
     uint8_t u8GetGnssFlag();
     uint8_t u8GetRtk();
 };

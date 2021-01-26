@@ -114,47 +114,47 @@ double Hydrabox::dConvertFromIEEE754(uint32_t u32NumToConvert)
 void Hydrabox::vParseGyroXY(can_frame Frame)
 {
     _pfGyroXYZ[Y] =
-        -(static_cast<float>(u32GetInt32(FIRST_INT32, Frame))*DPS_PER_LSB
+        -(static_cast<double>(u32GetInt32(FIRST_INT32, Frame))*DPS_PER_LSB
         + GYRO_OFFSET_Y)*DEG_TO_RAD;
     _pfGyroXYZ[X] =
-        -(static_cast<float>(u32GetInt32(SECOND_INT32, Frame))*DPS_PER_LSB
+        -(static_cast<double>(u32GetInt32(SECOND_INT32, Frame))*DPS_PER_LSB
         + GYRO_OFFSET_X)*DEG_TO_RAD;
 }
 
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
     _pfGyroXYZ[Z] =
-        -(static_cast<float>(u32GetInt32(FIRST_INT32, Frame))*DPS_PER_LSB
+        -(static_cast<double>(u32GetInt32(FIRST_INT32, Frame))*DPS_PER_LSB
         + GYRO_OFFSET_Z)*DEG_TO_RAD;
     _pfAccelXYZ[Y] =
-        -(static_cast<float>(u32GetInt32(SECOND_INT32, Frame))*G_PER_LSB
+        -(static_cast<double>(u32GetInt32(SECOND_INT32, Frame))*G_PER_LSB
         *G_TO_M_SS+ACCEL_OFFSET_Y);
 }
 
 void Hydrabox::vParseAccelYZ(can_frame Frame)
 {
     _pfAccelXYZ[X] =
-        -(static_cast<float>(u32GetInt32(FIRST_INT32, Frame))*G_PER_LSB
+        -(static_cast<double>(u32GetInt32(FIRST_INT32, Frame))*G_PER_LSB
         *G_TO_M_SS+ACCEL_OFFSET_X);
     _pfAccelXYZ[Z] =
-        -(static_cast<float>(u32GetInt32(SECOND_INT32, Frame))*G_PER_LSB
+        -(static_cast<double>(u32GetInt32(SECOND_INT32, Frame))*G_PER_LSB
         *G_TO_M_SS+ACCEL_OFFSET_Z);
 }
 
 void Hydrabox::vParseMagnXY(can_frame Frame)
 {
     _pfMagnXYZ[Y] =
-        ((static_cast<float>(u32GetInt32(FIRST_INT32, Frame))
+        ((static_cast<double>(u32GetInt32(FIRST_INT32, Frame))
         *GAUSS_PER_LSB)*GAUSS_TO_TESLA-OFFSET_Y)*SCALE_Y;
     _pfMagnXYZ[X] =
-        ((static_cast<float>(u32GetInt32(SECOND_INT32, Frame))
+        ((static_cast<double>(u32GetInt32(SECOND_INT32, Frame))
         *GAUSS_PER_LSB)*GAUSS_TO_TESLA-OFFSET_X)*SCALE_X;
 }
 
 void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
     _pfMagnXYZ[Z] =
-        ((static_cast<float>(u32GetInt32(FIRST_INT32, Frame))*
+        ((static_cast<double>(u32GetInt32(FIRST_INT32, Frame))*
         GAUSS_PER_LSB)*GAUSS_TO_TESLA-OFFSET_Z)*SCALE_Z;
     _pfRPYXYZ[X] = dConvertFromIEEE754(u32GetInt32(SECOND_INT32, Frame));
 }
@@ -297,22 +297,22 @@ void Hydrabox::vClearSecondDataset()
     _u16DataReadiness &= ~SECOND_DATASET_READY;
 }
 
-float* Hydrabox::pfGetGyro()
+double* Hydrabox::pfGetGyro()
 {
     return _pfGyroXYZ;
 }
 
-float* Hydrabox::pfGetAccel()
+double* Hydrabox::pfGetAccel()
 {
     return _pfAccelXYZ;
 }
 
-float* Hydrabox::pfGetMagnetometr()
+double* Hydrabox::pfGetMagnetometr()
 {
     return _pfMagnXYZ;
 }
 
-float* Hydrabox::pfGetRPY()
+double* Hydrabox::pfGetRPY()
 {
     return _pfRPYXYZ;
 }
@@ -337,22 +337,22 @@ uint8_t Hydrabox::u8GetFix()
     return _u8FixType;
 }
 
-float Hydrabox::fGetHeading()
+double Hydrabox::fGetHeading()
 {
     return _fHeading;
 }
 
-float Hydrabox::fGetHeadingAcc()
+double Hydrabox::fGetHeadingAcc()
 {
     return _fAccHeading;
 }
 
-float Hydrabox::fGetHorizontalAcc()
+double Hydrabox::fGetHorizontalAcc()
 {
     return _fAccHorizontal;
 }
 
-float Hydrabox::fGetVerticalAcc()
+double Hydrabox::fGetVerticalAcc()
 {
     return _fAccVertical;
 }

@@ -120,8 +120,8 @@ int main(int argc, char **argv)
                             gnss_msg.altitude = Hydra.dGetHei();
                             gnss_msg.status.status = Hydra.u8GetFix();
                             gnss_msg.status.service = Hydra.u8GetGnssFlag();
-                            float horizontalAcc = Hydra.fGetHorizontalAcc();
-                            float verticalAcc = Hydra.fGetVerticalAcc();
+                            double horizontalAcc = Hydra.fGetHorizontalAcc();
+                            double verticalAcc = Hydra.fGetVerticalAcc();
                             gnss_msg.position_covariance[0] = horizontalAcc;
                             gnss_msg.position_covariance[4] = horizontalAcc;
                             gnss_msg.position_covariance[8] = verticalAcc;
