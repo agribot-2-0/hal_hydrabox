@@ -23,9 +23,9 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     ros::Rate loop_rate(10);
     ros::Publisher imu_pub =
-        n.advertise<sensor_msgs::Imu>("agribot/imu/raw", 1);
+        n.advertise<sensor_msgs::Imu>("agribot/imu/raw/data", 1);
     ros::Publisher magnetometer_pub =
-        n.advertise<sensor_msgs::MagneticField>("agribot/magnetic_field", 1);
+        n.advertise<sensor_msgs::MagneticField>("agribot/imu/raw/mag", 1);
     ros::Publisher gnss_pub =
         n.advertise<sensor_msgs::NavSatFix>("agribot/gnss", 1);
     ros::Publisher heading_pub =
