@@ -1,3 +1,4 @@
 <launch>
-    <node name="hydrabox_node" pkg="hal_hydrabox" type="hydrabox_node" args="can0" />
+  <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/hal/hal_hydrabox/imu_bias.yaml" />
+  <node name="hydrabox_node" pkg="hal_hydrabox" type="hydrabox_node" args="can0" />
 </launch>

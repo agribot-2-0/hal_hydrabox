@@ -17,6 +17,44 @@
 #define ANGULAR_VELOCITY_COVARIANCE 0.02
 #define MAGNETOMETER_COVARIANCE 0.001
 
+void loadParameter(ros::NodeHandle& nh, const std::string& name, double& value)  // NOLINT(runtime/references)
+{
+  if (nh.hasParam(name))
+  {
+    nh.getParam(name, value);
+  }
+  else
+  {
+    ROS_FATAL_STREAM("[Hydrabox Node] Missing " << name << " parameter. Exiting...");
+    nh.shutdown();
+    exit(0);
+  }
+}
+
+void loadImuParameters(ros::NodeHandle& nh, Hydrabox& hydrabox)  // NOLINT(runtime/references)
+{
+  double x, y, z;
+  loadParameter(nh, "/hal/hydrabox/imu_bias/accelerometer_offset/x", x);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/accelerometer_offset/y", y);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/accelerometer_offset/z", z);
+  hydrabox.setAccelOffset(x, y, z);
+
+  loadParameter(nh, "/hal/hydrabox/imu_bias/gyroscope_offset/x", x);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/gyroscope_offset/y", y);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/gyroscope_offset/z", z);
+  hydrabox.setGyroOffset(x, y, z);
+
+  loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_offset/x", x);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_offset/y", y);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_offset/z", z);
+  hydrabox.setMagOffset(x, y, z);
+
+  loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_scale/x", x);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_scale/y", y);
+  loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_scale/z", z);
+  hydrabox.setMagScale(x, y, z);
+}
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "hydrabox");
@@ -39,6 +77,8 @@ int main(int argc, char** argv)
   }
 
   Hydrabox Hydra(argv[1]);
+  loadImuParameters(n, Hydra);
+
   while (ros::ok())
   {
     u8Timer++;

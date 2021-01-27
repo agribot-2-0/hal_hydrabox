@@ -34,6 +34,23 @@ class Hydrabox : public AgribotComponent
   double _pfMagnXYZ[3];
   double _pfRPYXYZ[3];
 
+  // Accelerometer, gyroscope and magnetometer bias
+  double accel_offset_x_;
+  double accel_offset_y_;
+  double accel_offset_z_;
+
+  double gyro_offset_x_;
+  double gyro_offset_y_;
+  double gyro_offset_z_;
+
+  double mag_offset_x_;
+  double mag_offset_y_;
+  double mag_offset_z_;
+
+  double mag_scale_x_;
+  double mag_scale_y_;
+  double mag_scale_z_;
+
   int32_t u32GetInt32(uint8_t u8StartBit, can_frame Frame);
 
   // arg: uint32_t u32NumToConvert - 32 bit encoded float in IEEE 754 standard
@@ -59,6 +76,11 @@ class Hydrabox : public AgribotComponent
   virtual bool update();
   virtual bool stop();
   virtual bool cleanup();
+
+  void setAccelOffset(double x, double y, double z);
+  void setGyroOffset(double x, double y, double z);
+  void setMagOffset(double x, double y, double z);
+  void setMagScale(double x, double y, double z);
 
   uint16_t u16GetDataReadiness();
   void vClearFirstDataset();
