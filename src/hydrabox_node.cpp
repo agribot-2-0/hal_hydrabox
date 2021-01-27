@@ -13,10 +13,6 @@
 
 #define INIT_INTERVAL 30  // 3s
 
-#define LINEAR_ACCELERATION_COVARIANCE 0.04
-#define ANGULAR_VELOCITY_COVARIANCE 0.02
-#define MAGNETOMETER_COVARIANCE 0.001
-
 void loadParameter(ros::NodeHandle& nh, const std::string& name, double& value)  // NOLINT(runtime/references)
 {
   if (nh.hasParam(name))
@@ -31,7 +27,7 @@ void loadParameter(ros::NodeHandle& nh, const std::string& name, double& value) 
   }
 }
 
-void loadImuParameters(ros::NodeHandle& nh, Hydrabox& hydrabox)  // NOLINT(runtime/references)
+void loadImuBiasParameters(ros::NodeHandle& nh, Hydrabox& hydrabox)  // NOLINT(runtime/references)
 {
   double x, y, z;
   loadParameter(nh, "/hal/hydrabox/imu_bias/accelerometer_offset/x", x);
@@ -70,6 +66,16 @@ int main(int argc, char** argv)
   sensor_msgs::Imu heading_msg;
   uint8_t u8Timer = INIT_INTERVAL;
 
+  double linear_acceleration_covariance_x;
+  double linear_acceleration_covariance_y;
+  double linear_acceleration_covariance_z;
+  double angular_velocity_covariance_x;
+  double angular_velocity_covariance_y;
+  double angular_velocity_covariance_z;
+  double magnetometer_covariance_x;
+  double magnetometer_covariance_y;
+  double magnetometer_covariance_z;
+
   if (argc < 2)
   {
     std::cout << "Specify can channel [can0 or can1]" << std::endl;
@@ -77,7 +83,16 @@ int main(int argc, char** argv)
   }
 
   Hydrabox Hydra(argv[1]);
-  loadImuParameters(n, Hydra);
+  loadImuBiasParameters(n, Hydra);
+  loadParameter(n, "hal/hydrabox/covariances/linear_acceleration_covariance/x", linear_acceleration_covariance_x);
+  loadParameter(n, "hal/hydrabox/covariances/linear_acceleration_covariance/y", linear_acceleration_covariance_y);
+  loadParameter(n, "hal/hydrabox/covariances/linear_acceleration_covariance/z", linear_acceleration_covariance_z);
+  loadParameter(n, "hal/hydrabox/covariances/angular_velocity_covariance/x", angular_velocity_covariance_x);
+  loadParameter(n, "hal/hydrabox/covariances/angular_velocity_covariance/y", angular_velocity_covariance_y);
+  loadParameter(n, "hal/hydrabox/covariances/angular_velocity_covariance/z", angular_velocity_covariance_z);
+  loadParameter(n, "hal/hydrabox/covariances/magnetometer_covariance/x", magnetometer_covariance_x);
+  loadParameter(n, "hal/hydrabox/covariances/magnetometer_covariance/y", magnetometer_covariance_y);
+  loadParameter(n, "hal/hydrabox/covariances/magnetometer_covariance/z", magnetometer_covariance_z);
 
   while (ros::ok())
   {
@@ -105,23 +120,23 @@ int main(int argc, char** argv)
               imu_msg.angular_velocity.x = Hydra.pfGetGyro()[0];
               imu_msg.angular_velocity.y = Hydra.pfGetGyro()[1];
               imu_msg.angular_velocity.z = Hydra.pfGetGyro()[2];
-              imu_msg.angular_velocity_covariance[0] = ANGULAR_VELOCITY_COVARIANCE;
-              imu_msg.angular_velocity_covariance[4] = ANGULAR_VELOCITY_COVARIANCE;
-              imu_msg.angular_velocity_covariance[8] = ANGULAR_VELOCITY_COVARIANCE;
+              imu_msg.angular_velocity_covariance[0] = angular_velocity_covariance_x;
+              imu_msg.angular_velocity_covariance[4] = angular_velocity_covariance_y;
+              imu_msg.angular_velocity_covariance[8] = angular_velocity_covariance_z;
               imu_msg.linear_acceleration.x = Hydra.pfGetAccel()[0];
               imu_msg.linear_acceleration.y = Hydra.pfGetAccel()[1];
               imu_msg.linear_acceleration.z = Hydra.pfGetAccel()[2];
-              imu_msg.linear_acceleration_covariance[0] = LINEAR_ACCELERATION_COVARIANCE;
-              imu_msg.linear_acceleration_covariance[4] = LINEAR_ACCELERATION_COVARIANCE;
-              imu_msg.linear_acceleration_covariance[8] = LINEAR_ACCELERATION_COVARIANCE;
+              imu_msg.linear_acceleration_covariance[0] = linear_acceleration_covariance_x;
+              imu_msg.linear_acceleration_covariance[4] = linear_acceleration_covariance_y;
+              imu_msg.linear_acceleration_covariance[8] = linear_acceleration_covariance_z;
               magnetometer_msg.header.stamp = ros::Time::now();
               magnetometer_msg.header.frame_id = "magnetometer_link";
               magnetometer_msg.magnetic_field.x = Hydra.pfGetMagnetometr()[0];
               magnetometer_msg.magnetic_field.y = Hydra.pfGetMagnetometr()[1];
               magnetometer_msg.magnetic_field.z = Hydra.pfGetMagnetometr()[2];
-              magnetometer_msg.magnetic_field_covariance[0] = MAGNETOMETER_COVARIANCE;
-              magnetometer_msg.magnetic_field_covariance[4] = MAGNETOMETER_COVARIANCE;
-              magnetometer_msg.magnetic_field_covariance[8] = MAGNETOMETER_COVARIANCE;
+              magnetometer_msg.magnetic_field_covariance[0] = magnetometer_covariance_x;
+              magnetometer_msg.magnetic_field_covariance[4] = magnetometer_covariance_y;
+              magnetometer_msg.magnetic_field_covariance[8] = magnetometer_covariance_z;
 
               imu_pub.publish(imu_msg);
               magnetometer_pub.publish(magnetometer_msg);
