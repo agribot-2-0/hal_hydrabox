@@ -99,10 +99,12 @@ double Hydrabox::dConvertFromIEEE754(uint32_t u32NumToConvert)
 
 void Hydrabox::vParseGyroXY(can_frame Frame)
 {
-  _pfGyroXYZ[Y] = -(static_cast<double>(u32GetInt32(FIRST_INT32, Frame)) * DPS_PER_LSB) * DEG_TO_RAD  + gyro_offset_y_;
+  _pfGyroXYZ[Y] = -(static_cast<double>(u32GetInt32(FIRST_INT32, Frame)) * DPS_PER_LSB) * DEG_TO_RAD + gyro_offset_y_;
   _pfGyroXYZ[X] = -(static_cast<double>(u32GetInt32(SECOND_INT32, Frame)) * DPS_PER_LSB) * DEG_TO_RAD + gyro_offset_x_;
 }
 
+// TODO(olek) - solve issue with swapped axis and minuses (mount orientation should be manipulated with imu_link and
+// magnetometer_link tf) (probably rewrite Hydrabox driver)
 void Hydrabox::vParseGyroZAccelX(can_frame Frame)
 {
   _pfGyroXYZ[Z] = -(static_cast<double>(u32GetInt32(FIRST_INT32, Frame)) * DPS_PER_LSB) * DEG_TO_RAD + gyro_offset_z_;
