@@ -10,6 +10,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/NavSatStatus.h>
 
 #define INIT_INTERVAL 30  // 3s
 
@@ -49,6 +50,24 @@ void loadImuBiasParameters(ros::NodeHandle& nh, Hydrabox& hydrabox)  // NOLINT(r
   loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_scale/y", y);
   loadParameter(nh, "/hal/hydrabox/imu_bias/magnetometer_scale/z", z);
   hydrabox.setMagScale(x, y, z);
+}
+
+int8_t getNavSatFixStatus(const HydraboxFixType hydrabox_fix_type, const HydraboxRtkStatus hydrabox_rtk_status)
+{
+  if (hydrabox_fix_type == HydraboxFixType::two_d || hydrabox_fix_type == HydraboxFixType::three_d)
+  {
+    if (hydrabox_rtk_status == HydraboxRtkStatus::floating || hydrabox_rtk_status == HydraboxRtkStatus::fixed)
+    {
+      return sensor_msgs::NavSatStatus::STATUS_GBAS_FIX;
+    }
+    else
+    {
+      return sensor_msgs::NavSatStatus::STATUS_FIX;
+    }
+  }
+
+  // All other combinations are treated as NO_FIX
+  return sensor_msgs::NavSatStatus::STATUS_NO_FIX;
 }
 
 int main(int argc, char** argv)
@@ -149,14 +168,18 @@ int main(int argc, char** argv)
               gnss_msg.latitude = Hydra.dGetLat();
               gnss_msg.longitude = Hydra.dGetLon();
               gnss_msg.altitude = Hydra.dGetHei();
-              gnss_msg.status.status = Hydra.u8GetFix();
+
+              HydraboxFixType fix_type = static_cast<HydraboxFixType>(Hydra.u8GetFix());
+              HydraboxRtkStatus rtk_status = static_cast<HydraboxRtkStatus>(Hydra.u8GetRtk());
+              gnss_msg.status.status = getNavSatFixStatus(fix_type, rtk_status);
+
               gnss_msg.status.service = Hydra.u8GetGnssFlag();
               double horizontalAcc = Hydra.fGetHorizontalAcc();
               double verticalAcc = Hydra.fGetVerticalAcc();
               gnss_msg.position_covariance[0] = horizontalAcc;
               gnss_msg.position_covariance[4] = horizontalAcc;
               gnss_msg.position_covariance[8] = verticalAcc;
-              // gnss_msg.rtk = Hydra.u8GetRtk();
+
               tf2::Quaternion quat;
               quat.setRPY(0, 0, Hydra.fGetHeading());
               heading_msg.header.stamp = ros::Time::now();

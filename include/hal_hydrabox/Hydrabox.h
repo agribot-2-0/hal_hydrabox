@@ -11,6 +11,23 @@
 #define FIRST_DATASET_READY 0x3F
 #define SECOND_DATASET_READY 0x3C0
 
+enum class HydraboxFixType
+{
+  no_fix = 0,
+  dead_reckoning_only = 1,
+  two_d = 2,
+  three_d = 3,
+  gps_dead_reckoning_combined = 4,
+  time_only_fix = 5
+};
+
+enum class HydraboxRtkStatus
+{
+  node = 0,
+  floating = 1,
+  fixed = 2
+};
+
 class Hydrabox : public AgribotComponent
 {
  private:
