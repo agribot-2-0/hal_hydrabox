@@ -120,17 +120,17 @@ void Hydrabox::vParseAccelYZ(can_frame Frame)
 void Hydrabox::vParseMagnXY(can_frame Frame)
 {
   _pfMagnXYZ[Y] =
-      ((static_cast<double>(u32GetInt32(FIRST_INT32, Frame)) * GAUSS_PER_LSB) * GAUSS_TO_TESLA - mag_offset_y_) *
+      (-(static_cast<double>(u32GetInt32(FIRST_INT32, Frame)) * GAUSS_PER_LSB) * GAUSS_TO_TESLA + mag_offset_y_) *
       mag_scale_y_;
   _pfMagnXYZ[X] =
-      ((static_cast<double>(u32GetInt32(SECOND_INT32, Frame)) * GAUSS_PER_LSB) * GAUSS_TO_TESLA - mag_offset_x_) *
+      (-(static_cast<double>(u32GetInt32(SECOND_INT32, Frame)) * GAUSS_PER_LSB) * GAUSS_TO_TESLA + mag_offset_x_) *
       mag_scale_x_;
 }
 
 void Hydrabox::vParseMagnZRoll(can_frame Frame)
 {
   _pfMagnXYZ[Z] =
-      ((static_cast<double>(u32GetInt32(FIRST_INT32, Frame)) * GAUSS_PER_LSB) * GAUSS_TO_TESLA - mag_offset_z_) *
+      (-(static_cast<double>(u32GetInt32(FIRST_INT32, Frame)) * GAUSS_PER_LSB) * GAUSS_TO_TESLA + mag_offset_z_) *
       mag_scale_z_;
   _pfRPYXYZ[X] = dConvertFromIEEE754(u32GetInt32(SECOND_INT32, Frame));
 }
