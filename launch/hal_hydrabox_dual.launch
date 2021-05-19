@@ -3,7 +3,7 @@
 
   <arg name="port" default="5555" />
   <arg name="host" default="192.168.0.100" />
-  <arg name="frame" default="gps" />
+  <arg name="frame" default="hydrabox_link" />
   <arg name="validate" default="false" />
 
   <arg name="gnss_topic" default="/agribot/gnss/hydrabox" />
