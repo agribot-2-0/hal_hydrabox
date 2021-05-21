@@ -17,10 +17,10 @@
     <param name="frame" value="$(arg frame)" />
     <param name="validate" value="$(arg validate)" />
 
-    <remap from="~gps/data" to="$(arg gnss_topic)" />
-    <remap from="~gps/heading" to="$(arg heading_topic)" />
-    <remap from="~imu/data" to="$(arg imu_topic)" />
-    <remap from="~imu/mag" to="$(arg mag_topic)" />
+    <remap from="gps/data" to="$(arg gnss_topic)" />
+    <remap from="gps/heading" to="$(arg heading_topic)" />
+    <remap from="imu/data" to="$(arg imu_topic)" />
+    <remap from="imu/mag" to="$(arg mag_topic)" />
   </node>
 
 </launch>
